@@ -36,3 +36,5 @@ export const DATA_URL = new URL(`${DB_URL}${DATA_ENDPOINT}`)
 export const SUGGESTIONS_ENDPOINT = "/suggestions"
 
 export const SUGGESTIONS_URL = new URL(`${DB_URL}${SUGGESTIONS_ENDPOINT}`)
+
+export const SEARCH_QUERY_PARAM = "query"

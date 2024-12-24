@@ -1,118 +1,123 @@
 import { useState, useEffect, useCallback } from "react"
-import type {
-  SearchItem,
-  SuggestionEntity,
-  SearchHistoryRecord,
-} from "../types"
-import { fakeSearchRequest, fakeSuggestionsRequest } from "../../../utils"
-import { SUGGESTIONS_URL } from "../../../config"
-import { omit } from "../../../utils"
-
-const SEARCH_HISTORY = "searchHistory"
-
-const parseLocalStorageJSON = (key: string) => {
-  return JSON.parse(localStorage.getItem(key) || "null")
-}
+import {
+  fakeSearchRequest,
+  fakeSuggestionsRequest,
+  transformToSuggestions,
+} from "../../../utils"
+import {
+  SUGGESTIONS_URL,
+  SEARCH_QUERY_PARAM,
+  SUPPORTED_SEARCH_SUGGESTIONS,
+} from "../../../config"
+import type { SearchItem, SearchSuggestion, HistorySuggestion } from "../types"
 
 const useSearch = () => {
   const [query, setQuery] = useState(
     new URL(window.location.href).searchParams.get("query") || ""
   )
-  const [isLoading, setLoading] = useState(false)
+  const [isFetched, setFetched] = useState(false)
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState<SearchItem[]>([])
-  const [suggestions, setSuggestions] = useState<SuggestionEntity[]>([])
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([])
+  const [historySuggestions, setHistorySuggestions] = useState<string[]>([])
+  const [autoCompletions, setAutoCompletions] = useState<
+    SearchSuggestion[] | HistorySuggestion[]
+  >([])
 
-  const getSearchHistory = useCallback((): SearchHistoryRecord => {
-    return parseLocalStorageJSON(SEARCH_HISTORY) || {}
-  }, [])
-
-  const storeSearchRecord = useCallback(
-    (searchRecord: SearchHistoryRecord) => {
-      if (
-        query in getSearchHistory() ||
-        !query.length ||
-        !searchRecord[query].length
-      ) {
-        return
-      }
-
-      localStorage.setItem(
-        SEARCH_HISTORY,
-        JSON.stringify({
-          ...getSearchHistory(),
-          ...searchRecord,
-        })
+  const deleteHistorySuggestion = useCallback(
+    (historyQuery: string) => {
+      console.log("remove >", query)
+      setHistorySuggestions(
+        historySuggestions.filter((historyItem) => historyItem !== historyQuery)
       )
     },
-    [query, getSearchHistory]
+    [query, historySuggestions]
   )
 
-  const deleteSearchHistoryRecord = () => (recordKey: string) => {
-    const searchHistory = getSearchHistory()
-
-    console.log("delete", recordKey)
-
-    if (query in searchHistory) {
-      localStorage.setItem(
-        SEARCH_HISTORY,
-        JSON.stringify(omit<SearchHistoryRecord>(searchHistory, recordKey))
-      )
-    }
-  }
-
-  useEffect(() => {
-    if (!query) return
-
-    const url = new URL(window.location.href)
-
-    if (!url.searchParams.has("query")) {
-      url.searchParams.append("query", query)
-    }
-
-    if (url.searchParams.get("query") !== query) {
-      url.searchParams.set("query", query)
-    }
-
-    history.pushState({}, "", url.href)
-
-    setLoading(true)
-
-    fakeSearchRequest<SearchItem>({ url: window.location.href })
-      .then((data) => {
-        setSearchResults(data.results)
-        storeSearchRecord({ [query]: data.results })
-        setLoading(false)
-      })
-      .catch((error) => {
-        setLoading(false)
-        setError(error)
-      })
-  }, [query, storeSearchRecord])
-
-  useEffect(() => {
-    // Todo: implement logic for query suggestions depending on search query
-    fakeSuggestionsRequest<SuggestionEntity>({
+  const fetchSearchSuggestions = useCallback(() => {
+    fakeSuggestionsRequest<string>({
       succeed: true,
       url: SUGGESTIONS_URL.href,
-      timeout: 0,
     })
       .then((data) => {
-        setSuggestions(data.results)
+        setSearchSuggestions(data.results)
       })
       .catch((err) => {
         console.error(err, "Failed to get autocomplete suggestions")
       })
   }, [])
 
+  const storeHistorySuggestion = useCallback(() => {
+    if (query && !historySuggestions.includes(query) && isFetched) {
+      console.log("add", query)
+      setHistorySuggestions((prevState) => [...prevState, query])
+    }
+  }, [query, historySuggestions, isFetched])
+
+  const handleAutoCompletions = useCallback(() => {
+    setAutoCompletions([
+      ...transformToSuggestions<string, HistorySuggestion>({
+        suggestions: historySuggestions,
+        type: SUPPORTED_SEARCH_SUGGESTIONS.history,
+        actions: {
+          onDelete: deleteHistorySuggestion,
+        },
+        ...transformToSuggestions<string, SearchSuggestion>({
+          suggestions: searchSuggestions,
+          type: SUPPORTED_SEARCH_SUGGESTIONS.search,
+        }),
+      }),
+    ])
+  }, [historySuggestions, searchSuggestions, deleteHistorySuggestion])
+
+  const handleSearch = useCallback(() => {
+    if (!query) return
+
+    console.table({ query: query })
+
+    const url = new URL(window.location.href)
+
+    if (!url.searchParams.has(SEARCH_QUERY_PARAM)) {
+      url.searchParams.append(SEARCH_QUERY_PARAM, query)
+    }
+
+    if (url.searchParams.get(SEARCH_QUERY_PARAM) !== query) {
+      url.searchParams.set(SEARCH_QUERY_PARAM, query)
+    }
+
+    history.pushState({}, "", url.href)
+
+    setFetched(false)
+
+    fakeSearchRequest<SearchItem>({ url: window.location.href })
+      .then((data) => {
+        setSearchResults(data.results)
+        setFetched(true)
+      })
+      .catch((error) => {
+        setFetched(true)
+        setError(error)
+      })
+  }, [query, setFetched])
+
+  useEffect(handleAutoCompletions, [handleAutoCompletions])
+
+  useEffect(handleSearch, [query, setFetched, handleSearch])
+
+  useEffect(storeHistorySuggestion, [
+    query,
+    historySuggestions,
+    isFetched,
+    storeHistorySuggestion,
+  ])
+
+  useEffect(fetchSearchSuggestions, [fetchSearchSuggestions])
+
   return {
     searchResults,
-    suggestions,
-    getSearchHistory,
-    deleteSearchHistoryRecord,
-    isLoading,
+    autoCompletions,
+    isLoading: !isFetched,
     error,
-    query,
     search: setQuery,
   }
 }

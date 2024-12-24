@@ -12,11 +12,6 @@ export const DropdownList = styled.ul`
   padding-left: 0;
   margin: 0;
   border-radius: inherit;
-
-  /* Highlight first item */
-  // &:not(:focus-within) li:first-of-type {
-  //   background: #f2f2f2;
-  // }
 `
 
 export const DropdownListItem = styled.li<{
@@ -30,6 +25,7 @@ export const DropdownListItem = styled.li<{
   font-size: ${(props) => SCALES[props.$scale]}rem;
   user-select: none;
 
+  &:focus-within,
   &:focus,
   &:hover {
     background: #f2f2f2;

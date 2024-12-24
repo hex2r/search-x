@@ -1,5 +1,5 @@
 import type { CSSInterpolation } from "@emotion/serialize"
-import { THEMES, SCALES } from ".."
+import { THEMES, SCALES, SUPPORTED_SEARCH_SUGGESTIONS } from ".."
 
 export namespace Global {
   export type ThemeShape = typeof THEMES
@@ -33,6 +33,9 @@ export namespace Global {
   export type ThemeProperty = {
     theme: Theme
   }
+
+  export type SupportedSearchSuggestions =
+    (typeof SUPPORTED_SEARCH_SUGGESTIONS)[keyof typeof SUPPORTED_SEARCH_SUGGESTIONS]
 
   export type ComponentScale = ComponentScaleShape<ScaleShape>
 }

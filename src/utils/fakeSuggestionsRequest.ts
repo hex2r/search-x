@@ -2,16 +2,7 @@ import { data } from "../../db/data"
 
 // suggestions support only search by title, decompose
 const decomposeDataToSuggestionsData = () => {
-  return data.results.reduce<unknown[]>(
-    (acc, curr) => [
-      ...acc,
-      {
-        id: curr.id,
-        search: curr.title,
-      },
-    ],
-    []
-  )
+  return data.results.reduce<string[]>((acc, curr) => [...acc, curr.title], [])
 }
 
 type FakeSuggestionsRequest = {

@@ -1,25 +1,10 @@
 import { PropsWithChildren } from "react"
 import SuggestionsContext from "./SearchContext"
 import useSearch from "./hooks/useSearch"
-import useAutoCompletions from "./hooks/useAutoCompletions"
 
 const SearchProvider = ({ children }: PropsWithChildren) => {
-  const {
-    deleteSearchHistoryRecord,
-    error,
-    getSearchHistory,
-    isLoading,
-    search,
-    searchResults,
-    suggestions,
-    query,
-  } = useSearch()
-  const { autoCompletions } = useAutoCompletions({
-    query,
-    getSearchHistory,
-    deleteSearchHistoryRecord,
-    suggestions,
-  })
+  const { search, searchResults, autoCompletions, error, isLoading } =
+    useSearch()
 
   return (
     <SuggestionsContext.Provider

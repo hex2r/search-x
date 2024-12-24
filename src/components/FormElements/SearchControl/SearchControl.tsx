@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import type { FC, FormEvent } from "react"
 import * as Styled from "./SearchControl.style"
 import { useThemeContext } from "../../../contexts/Theme"
@@ -32,7 +33,6 @@ export const SearchControl: FC<SearchControl> = ({
     focusSearchInput,
     handleChange,
     handleEscClose,
-    // handleKeyDownAutocomplete,
     handleReset,
     isSuggestionsVisible,
     refreshSuggestions,
@@ -46,6 +46,7 @@ export const SearchControl: FC<SearchControl> = ({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    console.warn("SUBMIT SEARCH")
     onSubmit(searchValue)
     setSuggestionsVisible(false)
   }

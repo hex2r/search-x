@@ -11,5 +11,6 @@ export {
   SUGGESTIONS_URL,
   DATA_ENDPOINT,
   DATA_URL,
+  SEARCH_QUERY_PARAM,
 } from "./main"
 export type { Global } from "./types"

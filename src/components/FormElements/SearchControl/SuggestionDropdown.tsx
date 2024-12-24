@@ -1,6 +1,11 @@
 import type { FC, KeyboardEvent, MouseEvent } from "react"
 import * as Styled from "./SuggestionDropdown.style"
-import { DEFAULT_SCALE, DEFAULT_THEME, KEYS } from "../../../config"
+import {
+  KEYS,
+  DEFAULT_SCALE,
+  DEFAULT_THEME,
+  SUPPORTED_SEARCH_SUGGESTIONS,
+} from "../../../config"
 import type { Global } from "../../../config"
 import { Typography } from "../../Typography"
 import { Icon } from "../../Icon"
@@ -45,7 +50,7 @@ const HistorySuggestionItem = ({
 }: HistorySuggestionItem) => {
   const handleDelete = (e: MouseEvent) => {
     e.stopPropagation()
-    console.log("click")
+    console.log("click", content)
     content.onDelete(content.search)
   }
 
@@ -62,16 +67,16 @@ const HistorySuggestionItem = ({
       <Icon scale={scale} theme={theme}>
         <IconHistory />
       </Icon>
-      <Typography cropped tag="div" cx={{ flexGrow: 1 }}>
+      <Typography cropped tag="div" cx={{ flexGrow: 1, color: "#52188c" }}>
         {content.search}
       </Typography>
-      <button
+      <Styled.DeleteButton
         type="button"
         onClick={handleDelete}
         onKeyDown={handleKeyboardDelete}
       >
         Delete
-      </button>
+      </Styled.DeleteButton>
     </>
   )
 }
@@ -109,7 +114,7 @@ export const SuggestionsDropdown: FC<SuggestionsDropdown<AutoCompletion>> = ({
             onClick={(e) => handleClick(e, item.content.search)}
             onKeyDown={(e) => handleKeyDown(e, item.content.search)}
           >
-            {item.type === "history" ? (
+            {item.type === SUPPORTED_SEARCH_SUGGESTIONS.history ? (
               <HistorySuggestionItem scale={scale} theme={theme} {...item} />
             ) : (
               <SearchSuggestionItem scale={scale} theme={theme} {...item} />

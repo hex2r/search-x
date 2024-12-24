@@ -36,3 +36,20 @@ export const SearchDropdown = styled.div<{
   padding-bottom: ${(props) => SCALES[props.$scale]}rem;
   ${(props) => THEMES[props.$theme]({ scale: SCALES[props.$scale] })};
 `
+
+export const DeleteButton = styled.button`
+  background: none;
+  border: 0;
+  color: #666;
+
+  &:focus,
+  &:hover {
+    color: #1558d6;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: #1045a7;
+  }
+`
