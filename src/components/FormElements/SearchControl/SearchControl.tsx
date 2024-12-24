@@ -8,13 +8,13 @@ import { Icon } from "../../Icon"
 import IconSearch from "../../../assets/search.svg?react"
 import IconClose from "../../../assets/close.svg?react"
 import useSearchAutocomplete from "./useSearchAutocomplete"
-import type { SuggestionEntity } from "./type"
+import type { AutoCompletion } from "../../../contexts/Search/types"
 import type { Global } from "../../../config"
 
 export type SearchControl = {
   id: string
   defaultValue?: string
-  autocomplete: SuggestionEntity[]
+  autoCompletions: AutoCompletion[]
   autoFocus: boolean
   onSubmit: (search: string) => void
 } & Global.ScaleProperty
@@ -23,7 +23,7 @@ export const SearchControl: FC<SearchControl> = ({
   id,
   scale = DEFAULT_SCALE,
   defaultValue = EMPTY_STRING,
-  autocomplete,
+  autoCompletions,
   onSubmit,
   autoFocus = false,
 }) => {
@@ -41,8 +41,8 @@ export const SearchControl: FC<SearchControl> = ({
     searchValue,
     setSearchValue,
     setSuggestionsVisible,
-    autoCompletions,
-  } = useSearchAutocomplete({ autocomplete, autoFocus, defaultValue })
+    suggestions,
+  } = useSearchAutocomplete({ autoCompletions, autoFocus, defaultValue })
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -86,7 +86,7 @@ export const SearchControl: FC<SearchControl> = ({
       </form>
       {isSuggestionsVisible && (
         <SuggestionsDropdown
-          items={autoCompletions}
+          items={suggestions}
           theme={theme}
           scale={scale}
           onSelect={(value: string) => {

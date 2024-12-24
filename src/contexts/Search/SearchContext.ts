@@ -1,11 +1,12 @@
 import { createContext, Dispatch, SetStateAction } from "react"
-import { SearchItem } from "./types"
+import type { SearchItem, AutoCompletion } from "./types"
 
 type SearchContext = {
   searchResults: SearchItem[]
   isLoading: boolean
   error: null | Error
   search: Dispatch<SetStateAction<string>>
+  autoCompletions: AutoCompletion[]
 }
 
 const SearchContext = createContext<SearchContext | null>(null)

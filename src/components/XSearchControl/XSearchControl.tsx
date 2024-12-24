@@ -1,10 +1,9 @@
 import { SearchControl } from "../FormElements"
-import { useSearchContext, useSuggestionsContext } from "../../contexts"
+import { useSearchContext } from "../../contexts"
 import { DEFAULT_SCALE } from "../../config"
 
 const XSearchControl = () => {
-  const suggestions = useSuggestionsContext()
-  const { search } = useSearchContext()
+  const { autoCompletions, search } = useSearchContext()
 
   const handleSubmit = (value: string) => {
     search(value)
@@ -15,7 +14,7 @@ const XSearchControl = () => {
       id="x-search-control"
       autoFocus
       scale={DEFAULT_SCALE}
-      autocomplete={suggestions}
+      autoCompletions={autoCompletions}
       onSubmit={handleSubmit}
     />
   )

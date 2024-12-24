@@ -1,5 +1,5 @@
 import { ResultsList, Logo, SearchPageTemplate } from "./components"
-import { ThemeProvider, SuggestionsProvider, SearchProvider } from "./contexts"
+import { ThemeProvider, SearchProvider } from "./contexts"
 import { XSearchControl } from "./components/XSearchControl"
 
 function App() {
@@ -10,9 +10,7 @@ function App() {
           <Logo />
         </div>
         <SearchProvider>
-          <SuggestionsProvider>
-            <XSearchControl />
-          </SuggestionsProvider>
+          <XSearchControl />
           <ResultsList />
         </SearchProvider>
       </SearchPageTemplate>

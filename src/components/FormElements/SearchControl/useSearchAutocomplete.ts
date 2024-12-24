@@ -1,28 +1,27 @@
 import { useState, useEffect, useRef, KeyboardEvent, ChangeEvent } from "react"
-import type { SuggestionEntity } from "./type"
+import type { AutoCompletion } from "../../../contexts/Search/types"
 import { MAX_DISPLAYED_SUGGESTIONS, KEYS, EMPTY_STRING } from "../../../config"
 
 const useSearchAutocomplete = ({
   defaultValue = EMPTY_STRING,
-  autocomplete,
+  autoCompletions,
   autoFocus = false,
 }: {
   defaultValue: string
-  autocomplete: SuggestionEntity[]
+  autoCompletions: AutoCompletion[]
   autoFocus: boolean
 }) => {
   const searchControlRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [isSuggestionsVisible, setSuggestionsVisible] = useState(false)
   const [searchValue, setSearchValue] = useState<string>(defaultValue)
-  const [suggestions, setSuggestions] = useState(autocomplete)
-  const [defaultSuggestion, setDefaultSuggestion] = useState(
-    suggestions[0]?.search || EMPTY_STRING
-  )
+  const [suggestions, setSuggestions] = useState(autoCompletions)
 
   const refreshSuggestions = (value: string) => {
-    const filteredSuggestions = autocomplete.filter(({ search }) =>
-      search.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+    const filteredSuggestions = autoCompletions.filter((item) =>
+      item.content.search
+        .toLocaleLowerCase()
+        .includes(value.toLocaleLowerCase())
     )
 
     if (!filteredSuggestions.length) {
@@ -32,7 +31,6 @@ const useSearchAutocomplete = ({
 
     setSuggestionsVisible(true)
     setSuggestions(filteredSuggestions)
-    setDefaultSuggestion(filteredSuggestions[0]?.search || EMPTY_STRING)
   }
 
   const focusSearchInput = () => {
@@ -47,15 +45,6 @@ const useSearchAutocomplete = ({
       setSuggestionsVisible(false)
     }
   }
-
-  // const handleKeyDownAutocomplete = (e: KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === KEYS.ENTER) {
-  //     if (isSuggestionsVisible) {
-  //       setSearchValue(defaultSuggestion)
-  //       refreshSuggestions(defaultSuggestion)
-  //     }
-  //   }
-  // }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
@@ -92,8 +81,7 @@ const useSearchAutocomplete = ({
   }, [searchInputRef, isSuggestionsVisible, autoFocus])
 
   return {
-    // TODO: sort suggestions
-    autoCompletions: suggestions.slice(0, MAX_DISPLAYED_SUGGESTIONS),
+    suggestions: suggestions.slice(0, MAX_DISPLAYED_SUGGESTIONS),
     searchControlRef,
     searchInputRef,
     isSuggestionsVisible,
@@ -104,7 +92,6 @@ const useSearchAutocomplete = ({
     refreshSuggestions,
     setSuggestionsVisible,
     setSearchValue,
-    // handleKeyDownAutocomplete,
     focusSearchInput,
   }
 }

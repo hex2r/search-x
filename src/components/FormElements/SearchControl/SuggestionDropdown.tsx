@@ -1,10 +1,6 @@
 import type { FC, KeyboardEvent, MouseEvent } from "react"
 import * as Styled from "./SuggestionDropdown.style"
-import {
-  DEFAULT_SCALE,
-  DEFAULT_THEME,
-  SUPPORTED_SEARCH_SUGGESTIONS,
-} from "../../../config"
+import { DEFAULT_SCALE, DEFAULT_THEME, KEYS } from "../../../config"
 import type { Global } from "../../../config"
 import { Typography } from "../../Typography"
 import { Icon } from "../../Icon"
@@ -12,52 +8,72 @@ import { DropdownList, DropdownListItem } from "../../DropdownList"
 import IconSearch from "../../../assets/search.svg?react"
 import IconHistory from "../../../assets/history.svg?react"
 import type {
+  AutoCompletion,
   SearchSuggestion,
   HistorySuggestion,
-  SupportedSearchSuggestions,
-} from "./type"
+} from "../../../contexts/Search/types"
 
-type SuggestionItem = SupportedSearchSuggestions &
+type SearchSuggestionItem = SearchSuggestion &
   Global.ScaleProperty &
   Global.ThemeProperty
 
-const SuggestionItem: FC<SuggestionItem> = ({
-  id,
-  type,
-  search,
+type HistorySuggestionItem = HistorySuggestion &
+  Global.ScaleProperty &
+  Global.ThemeProperty
+
+const SearchSuggestionItem = ({
   scale,
   theme,
-}) => {
-  const renderSuggestion = ({ search }: SearchSuggestion) => {
-    return (
-      <>
-        <Icon scale={scale} theme={theme}>
-          <IconSearch />
-        </Icon>
-        <Typography cropped tag="div" cx={{ flexGrow: 1 }}>
-          {search}
-        </Typography>
-      </>
-    )
+  content,
+}: SearchSuggestionItem) => {
+  return (
+    <>
+      <Icon scale={scale} theme={theme}>
+        <IconSearch />
+      </Icon>
+      <Typography cropped tag="div" cx={{ flexGrow: 1 }}>
+        {content.search}
+      </Typography>
+    </>
+  )
+}
+
+const HistorySuggestionItem = ({
+  scale,
+  theme,
+  content,
+}: HistorySuggestionItem) => {
+  const handleDelete = (e: MouseEvent) => {
+    e.stopPropagation()
+    console.log("click")
+    content.onDelete(content.search)
   }
 
-  const renderHistorySuggestion = ({ search }: HistorySuggestion) => {
-    return (
-      <>
-        <Icon scale={scale} theme={theme}>
-          <IconHistory />
-        </Icon>
-        <Typography cropped tag="div" cx={{ flexGrow: 1 }}>
-          {search}
-        </Typography>
-        <button>Delete</button>
-      </>
-    )
+  const handleKeyboardDelete = (e: KeyboardEvent) => {
+    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
+      e.stopPropagation()
+      e.preventDefault()
+      content.onDelete(content.search)
+    }
   }
 
-  return type === SUPPORTED_SEARCH_SUGGESTIONS.history
-    ? renderHistorySuggestion({ id, type, search })
-    : renderSuggestion({ id, type, search })
+  return (
+    <>
+      <Icon scale={scale} theme={theme}>
+        <IconHistory />
+      </Icon>
+      <Typography cropped tag="div" cx={{ flexGrow: 1 }}>
+        {content.search}
+      </Typography>
+      <button
+        type="button"
+        onClick={handleDelete}
+        onKeyDown={handleKeyboardDelete}
+      >
+        Delete
+      </button>
+    </>
+  )
 }
 
 type SuggestionsDropdown<T extends object> = {
@@ -66,15 +82,18 @@ type SuggestionsDropdown<T extends object> = {
 } & Global.ScaleProperty &
   Global.ThemeProperty
 
-export const SuggestionsDropdown: FC<
-  SuggestionsDropdown<SupportedSearchSuggestions>
-> = ({ items, scale = DEFAULT_SCALE, theme = DEFAULT_THEME, onSelect }) => {
+export const SuggestionsDropdown: FC<SuggestionsDropdown<AutoCompletion>> = ({
+  items,
+  scale = DEFAULT_SCALE,
+  theme = DEFAULT_THEME,
+  onSelect,
+}) => {
   const handleClick = (_: MouseEvent, value: string) => {
     onSelect(value)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLLIElement>, value: string) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
       e.preventDefault()
       onSelect(value)
     }
@@ -87,10 +106,14 @@ export const SuggestionsDropdown: FC<
           <DropdownListItem
             key={idx}
             scale={scale}
-            onClick={(e) => handleClick(e, item.search)}
-            onKeyDown={(e) => handleKeyDown(e, item.search)}
+            onClick={(e) => handleClick(e, item.content.search)}
+            onKeyDown={(e) => handleKeyDown(e, item.content.search)}
           >
-            <SuggestionItem scale={scale} theme={theme} {...item} />
+            {item.type === "history" ? (
+              <HistorySuggestionItem scale={scale} theme={theme} {...item} />
+            ) : (
+              <SearchSuggestionItem scale={scale} theme={theme} {...item} />
+            )}
           </DropdownListItem>
         ))}
       </DropdownList>
