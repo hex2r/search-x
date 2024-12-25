@@ -25,10 +25,18 @@ export const DropdownListItem = styled.li<{
   font-size: ${(props) => SCALES[props.$scale]}rem;
   user-select: none;
 
+  button {
+    display: none;
+  }
+
   &:focus-within,
   &:focus,
   &:hover {
     background: #f2f2f2;
+
+    button {
+      display: inline-flex;
+    }
   }
 
   &:active {

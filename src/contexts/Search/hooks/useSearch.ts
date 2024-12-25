@@ -21,7 +21,7 @@ const useSearch = () => {
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([])
   const [historySuggestions, setHistorySuggestions] = useState<string[]>([])
   const [autoCompletions, setAutoCompletions] = useState<
-    SearchSuggestion[] | HistorySuggestion[]
+    (SearchSuggestion | HistorySuggestion)[]
   >([])
 
   const deleteHistorySuggestion = useCallback(
@@ -62,10 +62,10 @@ const useSearch = () => {
         actions: {
           onDelete: deleteHistorySuggestion,
         },
-        ...transformToSuggestions<string, SearchSuggestion>({
-          suggestions: searchSuggestions,
-          type: SUPPORTED_SEARCH_SUGGESTIONS.search,
-        }),
+      }),
+      ...transformToSuggestions<string, SearchSuggestion>({
+        suggestions: searchSuggestions,
+        type: SUPPORTED_SEARCH_SUGGESTIONS.search,
       }),
     ])
   }, [historySuggestions, searchSuggestions, deleteHistorySuggestion])
