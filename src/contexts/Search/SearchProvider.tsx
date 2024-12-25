@@ -3,17 +3,16 @@ import SuggestionsContext from "./SearchContext"
 import useSearch from "./hooks/useSearch"
 
 const SearchProvider = ({ children }: PropsWithChildren) => {
-  const { search, searchResults, autoCompletions, error, isLoading } =
-    useSearch()
+  const { query, searchResults, isLoading, error, search } = useSearch()
 
   return (
     <SuggestionsContext.Provider
       value={{
+        query,
         searchResults,
         isLoading,
         error,
         search,
-        autoCompletions,
       }}
     >
       {children}

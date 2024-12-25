@@ -1,5 +1,5 @@
 import type { CSSInterpolation } from "@emotion/serialize"
-import { THEMES, SCALES, SUPPORTED_SEARCH_SUGGESTIONS } from ".."
+import { THEMES, SCALES, SEARCH_AUTOCOMPLETION_TYPES } from ".."
 
 export namespace Global {
   export type ThemeShape = typeof THEMES
@@ -35,7 +35,7 @@ export namespace Global {
   }
 
   export type SupportedSearchSuggestions =
-    (typeof SUPPORTED_SEARCH_SUGGESTIONS)[keyof typeof SUPPORTED_SEARCH_SUGGESTIONS]
+    (typeof SEARCH_AUTOCOMPLETION_TYPES)[keyof typeof SEARCH_AUTOCOMPLETION_TYPES]
 
   export type ComponentScale = ComponentScaleShape<ScaleShape>
 }

@@ -9,13 +9,13 @@ const SCALES = {
 } satisfies Global.ComponentScale
 
 export const SearchControl = styled.div<{
-  $suggestionsVisible: boolean
+  $isDropdownVisible: boolean
   $scale: Global.Scale
 }>`
   position: relative;
 
   ${(props) =>
-    props.$suggestionsVisible &&
+    props.$isDropdownVisible &&
     `input {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
@@ -46,7 +46,7 @@ export const SearchControlBar = styled.div<{
   display: flex;
 `
 
-export const SearchControlReset = styled.button`
+export const ButtonResetSearch = styled.button`
   padding: 0;
   border: 0;
   background: none;

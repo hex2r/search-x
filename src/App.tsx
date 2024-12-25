@@ -1,6 +1,7 @@
 import { ResultsList, Logo, SearchPageTemplate } from "./components"
 import { ThemeProvider, SearchProvider } from "./contexts"
 import { XSearchControl } from "./components/XSearchControl"
+import "./main.css"
 
 function App() {
   return (

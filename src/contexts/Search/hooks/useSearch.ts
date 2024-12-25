@@ -1,79 +1,34 @@
 import { useState, useEffect, useCallback } from "react"
-import {
-  fakeSearchRequest,
-  fakeSuggestionsRequest,
-  transformToSuggestions,
-} from "../../../utils"
-import {
-  SUGGESTIONS_URL,
-  SEARCH_QUERY_PARAM,
-  SUPPORTED_SEARCH_SUGGESTIONS,
-} from "../../../config"
-import type { SearchItem, SearchSuggestion, HistorySuggestion } from "../types"
+import { fetchSearchResults } from "../../../api"
+import { SEARCH_QUERY_PARAM, API_SEARCH_URL } from "../../../config"
+import type { SearchEntry } from "../types"
 
 const useSearch = () => {
   const [query, setQuery] = useState(
-    new URL(window.location.href).searchParams.get("query") || ""
+    new URL(window.location.href).searchParams.get(SEARCH_QUERY_PARAM) || ""
   )
   const [isFetched, setFetched] = useState(false)
   const [error, setError] = useState(null)
-  const [searchResults, setSearchResults] = useState<SearchItem[]>([])
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([])
-  const [historySuggestions, setHistorySuggestions] = useState<string[]>([])
-  const [autoCompletions, setAutoCompletions] = useState<
-    (SearchSuggestion | HistorySuggestion)[]
-  >([])
+  const [searchResults, setSearchResults] = useState<SearchEntry[]>([])
 
-  const deleteHistorySuggestion = useCallback(
-    (historyQuery: string) => {
-      console.log("remove >", query)
-      setHistorySuggestions(
-        historySuggestions.filter((historyItem) => historyItem !== historyQuery)
-      )
-    },
-    [query, historySuggestions]
-  )
+  const storeSearchResults = useCallback(() => {
+    setFetched(false)
 
-  const fetchSearchSuggestions = useCallback(() => {
-    fakeSuggestionsRequest<string>({
-      succeed: true,
-      url: SUGGESTIONS_URL.href,
+    fetchSearchResults({
+      url: `${API_SEARCH_URL}/?${SEARCH_QUERY_PARAM}=${query}`,
     })
       .then((data) => {
-        setSearchSuggestions(data.results)
+        setSearchResults(data.results)
+        setFetched(true)
       })
-      .catch((err) => {
-        console.error(err, "Failed to get autocomplete suggestions")
+      .catch((error) => {
+        setFetched(true)
+        setError(error)
       })
-  }, [])
-
-  const storeHistorySuggestion = useCallback(() => {
-    if (query && !historySuggestions.includes(query) && isFetched) {
-      console.log("add", query)
-      setHistorySuggestions((prevState) => [...prevState, query])
-    }
-  }, [query, historySuggestions, isFetched])
-
-  const handleAutoCompletions = useCallback(() => {
-    setAutoCompletions([
-      ...transformToSuggestions<string, HistorySuggestion>({
-        suggestions: historySuggestions,
-        type: SUPPORTED_SEARCH_SUGGESTIONS.history,
-        actions: {
-          onDelete: deleteHistorySuggestion,
-        },
-      }),
-      ...transformToSuggestions<string, SearchSuggestion>({
-        suggestions: searchSuggestions,
-        type: SUPPORTED_SEARCH_SUGGESTIONS.search,
-      }),
-    ])
-  }, [historySuggestions, searchSuggestions, deleteHistorySuggestion])
+  }, [query, setFetched])
 
   const handleSearch = useCallback(() => {
     if (!query) return
-
-    console.table({ query: query })
 
     const url = new URL(window.location.href)
 
@@ -87,35 +42,14 @@ const useSearch = () => {
 
     history.pushState({}, "", url.href)
 
-    setFetched(false)
+    storeSearchResults()
+  }, [query, storeSearchResults])
 
-    fakeSearchRequest<SearchItem>({ url: window.location.href })
-      .then((data) => {
-        setSearchResults(data.results)
-        setFetched(true)
-      })
-      .catch((error) => {
-        setFetched(true)
-        setError(error)
-      })
-  }, [query, setFetched])
-
-  useEffect(handleAutoCompletions, [handleAutoCompletions])
-
-  useEffect(handleSearch, [query, setFetched, handleSearch])
-
-  useEffect(storeHistorySuggestion, [
-    query,
-    historySuggestions,
-    isFetched,
-    storeHistorySuggestion,
-  ])
-
-  useEffect(fetchSearchSuggestions, [fetchSearchSuggestions])
+  useEffect(handleSearch, [handleSearch])
 
   return {
+    query,
     searchResults,
-    autoCompletions,
     isLoading: !isFetched,
     error,
     search: setQuery,

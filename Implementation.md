@@ -65,8 +65,10 @@ _Not provided_ (should be supported in latest versions)
 
 #### API
 
-- GET /suggestions - endpoint for getting suggestions (not implemented)
-- GET /data - endpoint for getting data which need to be rendered (not implemented)
+- GET /autocompletions - endpoint for getting autocompletions
+  ?query=string
+- GET /search - endpoint for getting search results
+  ?query=string
 
 #### Interfaces
 

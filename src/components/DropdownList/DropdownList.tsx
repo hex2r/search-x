@@ -11,7 +11,7 @@ export const DropdownList: FC<PropsWithChildren> = ({ children }) => {
 }
 
 type DropdownListItem = {
-  onClick: (e: MouseEvent) => void
+  onClick: (e: MouseEvent<HTMLLIElement>) => void
   onKeyDown: (e: KeyboardEvent<HTMLLIElement>) => void
 } & Global.ScaleProperty &
   PropsWithChildren

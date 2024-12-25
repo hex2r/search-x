@@ -1,4 +1,4 @@
-export const data = {
+export const store = {
   results: [
     {
       id: "0",

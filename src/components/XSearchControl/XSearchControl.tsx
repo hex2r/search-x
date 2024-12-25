@@ -1,12 +1,19 @@
+import { FormEvent, MouseEvent, KeyboardEvent } from "react"
 import { SearchControl } from "../FormElements"
 import { useSearchContext } from "../../contexts"
 import { DEFAULT_SCALE } from "../../config"
 
 const XSearchControl = () => {
-  const { autoCompletions, search } = useSearchContext()
+  const { autocompletions, search } = useSearchContext()
 
-  const handleSubmit = (value: string) => {
-    search(value)
+  const handleSubmit = (
+    _:
+      | MouseEvent<HTMLLIElement>
+      | FormEvent<HTMLFormElement>
+      | KeyboardEvent<HTMLLIElement>,
+    searchQuery: string
+  ) => {
+    search(searchQuery)
   }
 
   return (
@@ -14,8 +21,8 @@ const XSearchControl = () => {
       id="x-search-control"
       autoFocus
       scale={DEFAULT_SCALE}
-      autoCompletions={autoCompletions}
-      onSubmit={handleSubmit}
+      autocompletions={autocompletions}
+      onSearchSubmit={handleSubmit}
     />
   )
 }
