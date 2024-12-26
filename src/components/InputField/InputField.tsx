@@ -6,9 +6,9 @@ import {
 } from "react"
 
 import * as Styled from "./InputField.style"
-import { DEFAULT_SCALE } from "../../../config"
-import type { Global } from "../../../config/types"
-import { useThemeContext } from "../../../contexts/Theme"
+import { DEFAULT_SCALE } from "../../config"
+import type { Global } from "../../config/types"
+import { useThemeContext } from "../../contexts/Theme"
 
 export type InputField = InputHTMLAttributes<HTMLInputElement> & {
   scale?: Global.Scale

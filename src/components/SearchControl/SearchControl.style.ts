@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 
-import type { Global } from "../../../config/types"
+import type { Global } from "../../config/types"
 
 const SCALES = {
   small: 0.75,

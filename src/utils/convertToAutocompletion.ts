@@ -18,7 +18,7 @@ export const convertToHistoryAutocompletions = <T, U>(
 ): U[] => {
   const transformed = items.map((item) => ({
     type: SEARCH_AUTOCOMPLETION_TYPES.HISTORY,
-    id: `id-${item}`,
+    id: crypto.randomUUID().split("-")[4],
     search: item,
     ...actions,
   })) as unknown[]

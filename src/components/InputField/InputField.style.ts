@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 
-import type { Global } from "../../../config/types"
+import type { Global } from "../../config/types"
 
 const SCALES = {
   small: 0.75,
@@ -27,6 +27,7 @@ export const InputField = styled.input<{
   $scale: Global.Scale
 }>`
   width: 100%;
+  box-sizing: border-box;
   font-size: ${(props) => SCALES[props.$scale]}rem;
   padding: ${(props) => SCALES[props.$scale] * 0.825}rem
     ${(props) => SCALES[props.$scale]}rem;

@@ -5,7 +5,7 @@ const useSearchContext = () => {
   const context = useContext(SearchContext)
 
   if (!context) {
-    throw new ReferenceError(
+    throw new Error(
       "The following component should be used within SearchContext"
     )
   }

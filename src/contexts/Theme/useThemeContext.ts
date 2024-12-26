@@ -5,7 +5,7 @@ const useThemeContext = () => {
   const context = useContext(ThemeContext)
 
   if (!context) {
-    throw new ReferenceError(
+    throw new Error(
       "The following component should be used within ThemeContext"
     )
   }

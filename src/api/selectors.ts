@@ -1,5 +1,6 @@
-import { SEARCH_AUTOCOMPLETION_TYPES } from "../config"
-import { BasicAutocompletion, SearchEntry } from "../contexts/Search/types"
+import { SearchEntry } from "../components/ResultsList/types"
+import type { BasicAutocompletion } from "../components/SearchControl/types"
+
 import { includesString } from "../utils"
 
 export const getAutocompletions = (
@@ -17,7 +18,7 @@ export const getAutocompletions = (
       ]
     }
 
-    return acc
+    return acc as BasicAutocompletion[]
   }, []) as BasicAutocompletion[]
 }
 
@@ -33,6 +34,6 @@ export const getSearchResults = (
       return [...acc, curr]
     }
 
-    return acc
+    return acc as BasicAutocompletion[]
   }, []) as SearchEntry[]
 }

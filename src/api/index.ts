@@ -5,14 +5,15 @@ import {
   ENDPOINT_SEARCH,
   RESPONSE_TIMEOUT,
 } from "../config"
-import { SearchEntry, BasicAutocompletion } from "../contexts/Search/types"
 import { getAutocompletions, getSearchResults } from "./selectors"
+import { SearchEntry } from "../components/ResultsList/types"
+import { BasicAutocompletion } from "../components/SearchControl/types"
 
 type FakeResponse<T> = Promise<{
   results: T[]
 }>
 
-const fakeAPIRequest = <T>({
+const fakeAPIRequest = async <T>({
   succeed = true,
   timeout = RESPONSE_TIMEOUT,
   callback,
@@ -28,13 +29,13 @@ const fakeAPIRequest = <T>({
           results: callback(),
         })
       } else {
-        reject({ status: 500, message: `Bad request!` })
+        reject({ status: 500, message: `Internal Server Error!` })
       }
     }, timeout)
   })
 }
 
-export const fetchAutocompletions = ({
+export const fetchAutocompletions = async ({
   succeed = true,
   url,
   timeout = RESPONSE_TIMEOUT,
@@ -47,8 +48,10 @@ export const fetchAutocompletions = ({
   const endpoint = `/${objectURL.pathname.split("/")[1]}`
   const query = objectURL.searchParams.get(SEARCH_QUERY_PARAM)
 
+  console.log("Request Autocompletions >>", url)
+
   if (!query || endpoint !== ENDPOINT_AUTOCOMPLETIONS) {
-    return Promise.reject({ status: 500, message: `Bad request! ${url}` })
+    return Promise.reject({ status: 400, message: `Bad request! ${url}` })
   }
 
   return fakeAPIRequest({
@@ -58,7 +61,7 @@ export const fetchAutocompletions = ({
   })
 }
 
-export const fetchSearchResults = ({
+export const fetchSearchResults = async ({
   succeed = true,
   url,
   timeout = RESPONSE_TIMEOUT,
@@ -71,8 +74,10 @@ export const fetchSearchResults = ({
   const endpoint = `/${objectURL.pathname.split("/")[1]}`
   const query = objectURL.searchParams.get(SEARCH_QUERY_PARAM)
 
+  console.log("Request Search Results >>", url)
+
   if (!query || endpoint !== ENDPOINT_SEARCH) {
-    return Promise.reject({ status: 500, message: `Bad request! ${url}` })
+    return Promise.reject({ status: 400, message: `Bad request! ${url}` })
   }
 
   return fakeAPIRequest({

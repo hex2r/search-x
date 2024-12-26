@@ -1,62 +1,43 @@
-import { useEffect } from "react"
-import type { FC, FormEvent, KeyboardEvent, MouseEvent } from "react"
+import type { FC } from "react"
 import * as Styled from "./SearchControl.style"
-import { useThemeContext } from "../../../contexts/Theme"
-import { DEFAULT_SCALE, EMPTY_STRING } from "../../../config"
+import { useThemeContext, useSearchContext } from "../../contexts"
+import { DEFAULT_SCALE } from "../../config"
 import { SearchDropdown } from "./SearchDropdown"
 import { InputField } from "../InputField"
-import { Icon } from "../../Icon"
-import IconSearch from "../../../assets/search.svg?react"
-import IconClose from "../../../assets/close.svg?react"
-import useSearchAutocomplete from "./hooks/useSearchAutocomplete"
-import type { Global } from "../../../config"
-// Todo: this component should know nothing about the context, resolve this dependency
-import type { Autocompletion } from "../../../contexts/Search/types"
+import { Icon } from "../Icon"
+import IconSearch from "../../assets/search.svg?react"
+import IconClose from "../../assets/close.svg?react"
+import type { Global } from "../../config/types/"
+import { useSearchControl } from "./hooks/useSearchControl"
 
 export type SearchControl = {
   id: string
-  defaultValue?: string
-  autocompletions: Autocompletion[]
-  autoFocus: boolean
-  onSearchSubmit: (
-    e:
-      | FormEvent<HTMLFormElement>
-      | MouseEvent<HTMLLIElement>
-      | KeyboardEvent<HTMLLIElement>,
-    searchQuery: string
-  ) => void
-} & Global.ScaleProperty
+  autoFocus?: boolean
+  scale?: Global.Scale
+}
 
 export const SearchControl: FC<SearchControl> = ({
   id,
   scale = DEFAULT_SCALE,
-  defaultValue = EMPTY_STRING,
-  autocompletions,
-  onSearchSubmit,
   autoFocus = false,
 }) => {
   const theme = useThemeContext()
+  const { query, search } = useSearchContext()
   const {
     input,
-    handleChange,
-    handleEscClose,
-    handleReset,
-    isSearchDropdownVisible,
-    searchControlRef,
+    autocompletions,
     searchInputRef,
-    handleSearchSubmit,
-    handleInputFocus,
+    searchControlRef,
+    isSearchDropdownVisible,
     handleSelectAutocompletionItem,
-    autocompletions: filteredAutocompletions,
-  } = useSearchAutocomplete({
-    suggestedAutocompletions: autocompletions,
+    handleSearchSubmit,
+    handleEscClose,
+    handleChange,
+    handleReset,
+  } = useSearchControl({
     autoFocus,
-    defaultValue,
-    onSearchSubmit,
-  })
-
-  useEffect(() => {
-    console.log("> Render >> <SearchControl />")
+    search,
+    contextQuery: query,
   })
 
   return (
@@ -77,10 +58,9 @@ export const SearchControl: FC<SearchControl> = ({
           ref={searchInputRef}
           value={input}
           scale={scale}
-          type="search"
+          type="text"
           name="search"
           onChange={handleChange}
-          onFocus={handleInputFocus}
         />
         <Styled.SearchControlBar $scale={scale}>
           {input && (
@@ -93,11 +73,12 @@ export const SearchControl: FC<SearchControl> = ({
         </Styled.SearchControlBar>
         <input type="submit" hidden />
       </form>
+      {/* {autocompletions.length > 0 && ( */}
       {isSearchDropdownVisible && (
         <SearchDropdown
           theme={theme}
           scale={scale}
-          items={filteredAutocompletions}
+          items={autocompletions}
           onSelectAutocompletionItem={handleSelectAutocompletionItem}
         />
       )}

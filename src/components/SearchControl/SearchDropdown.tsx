@@ -5,10 +5,10 @@ import {
   DEFAULT_SCALE,
   DEFAULT_THEME,
   SEARCH_AUTOCOMPLETION_TYPES,
-} from "../../../config"
-import type { Global } from "../../../config"
-import type { Autocompletion } from "../../../contexts/Search/types"
-import { DropdownList, DropdownListItem } from "../../DropdownList"
+} from "../../config"
+import type { Global } from "../../config/types"
+import type { Autocompletion } from "./types"
+import { DropdownList, DropdownListItem } from "../DropdownList"
 import {
   HistoryAutocompletionItem,
   SearchAutocompletionItem,
@@ -46,12 +46,12 @@ export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
   return (
     <Styled.SearchDropdown $theme={theme} $scale={scale} tabIndex={-1}>
       <DropdownList>
-        {items.map((item, idx) => (
+        {items.map((item) => (
           <DropdownListItem
-            key={idx}
+            key={item.id}
             scale={scale}
-            onClick={(e) => handleClick(e, item.content.search)}
-            onKeyDown={(e) => handleKeyDown(e, item.content.search)}
+            onClick={(e) => handleClick(e, item.search)}
+            onKeyDown={(e) => handleKeyDown(e, item.search)}
           >
             {item.type === SEARCH_AUTOCOMPLETION_TYPES.HISTORY ? (
               <HistoryAutocompletionItem
