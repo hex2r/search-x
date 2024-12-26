@@ -1,4 +1,3 @@
-import { ErrorBoundary } from "react-error-boundary"
 import { ResultsList, Logo, SearchPageTemplate } from "./components"
 import { ThemeProvider, SearchProvider } from "./contexts"
 import { SearchControl } from "./components/SearchControl"
@@ -17,9 +16,7 @@ function App() {
           </div>
           <SearchProvider>
             <SearchControl id="search" autoFocus />
-            <ErrorBoundary fallback={<span>Error</span>}>
-              <ResultsList />
-            </ErrorBoundary>
+            <ResultsList />
           </SearchProvider>
         </SearchPageTemplate>
       </QueryClientProvider>
