@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import type { KeyboardEvent } from "react"
 import { fetchAutocompletions } from "../../../api"
 import {
@@ -15,7 +16,6 @@ import type {
   SearchAutocompletion,
   HistoryAutocompletion,
 } from "../types"
-import { useQuery } from "@tanstack/react-query"
 
 export const useAutocomplete = ({
   input,
@@ -38,16 +38,13 @@ export const useAutocomplete = ({
     isPending: isFetching,
     error: isFetchingError,
   } = useQuery({
-    queryKey: ["searchAutocompletions", input],
-    // Todo: add debounce
+    queryKey: ["searchAutocompletions", input.trim()],
     queryFn: () =>
       fetchAutocompletions({
-        url: `${API_AUTOCOMPLETIONS_URL}/?${SEARCH_QUERY_PARAM}=${input}`,
+        url: `${API_AUTOCOMPLETIONS_URL}/?${SEARCH_QUERY_PARAM}=${input.trim()}`,
       }),
-    enabled: !!input,
+    enabled: !!input.trim(),
   })
-
-  // const deferredAutocompletions = useDeferredValue(autocompletions)
 
   const storeSearchAutocompletions = useCallback(() => {
     if (isFetching || !fetchedAutocompletions) return
@@ -94,7 +91,7 @@ export const useAutocomplete = ({
       ...(input
         ? searchAutocompletions.filter(
             ({ search }) =>
-              search.toLocaleLowerCase() !== input.toLocaleLowerCase()
+              search.toLocaleLowerCase() !== input.trim().toLocaleLowerCase()
           )
         : []),
     ])

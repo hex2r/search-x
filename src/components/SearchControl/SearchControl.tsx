@@ -34,6 +34,7 @@ export const SearchControl: FC<SearchControl> = ({
     handleEscClose,
     handleChange,
     handleReset,
+    handleFocus,
   } = useSearchControl({
     autoFocus,
     search,
@@ -58,9 +59,11 @@ export const SearchControl: FC<SearchControl> = ({
           ref={searchInputRef}
           value={input}
           scale={scale}
+          // Note: type=search resets on press Esc
           type="text"
           name="search"
           onChange={handleChange}
+          onFocus={handleFocus}
         />
         <Styled.SearchControlBar $scale={scale}>
           {input && (

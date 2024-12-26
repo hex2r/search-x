@@ -42,6 +42,12 @@ export const useSearchControl = ({
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.value.trim() || autocompletions.length === 0) {
+      setSearchDropdownVisible(false)
+    } else {
+      setSearchDropdownVisible(true)
+    }
+
     setInput(e.target.value)
   }
 
@@ -53,8 +59,7 @@ export const useSearchControl = ({
   const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!input) return
-    if (input === contextQuery) return
+    if (!input.trim() || input === contextQuery) return
 
     const url = new URL(window.location.href)
 
@@ -68,7 +73,7 @@ export const useSearchControl = ({
 
     history.pushState({}, "", url.href)
 
-    search(input)
+    search(input.trim())
     setSearchDropdownVisible(false)
   }
 
@@ -76,20 +81,37 @@ export const useSearchControl = ({
     _: ReactMouseEvent<HTMLLIElement> | KeyboardEvent<HTMLLIElement>,
     searchQuery: string
   ) => {
-    setSearchDropdownVisible(false)
     focusSearchInput()
     setInput(searchQuery)
     search(searchQuery)
+    setSearchDropdownVisible(false)
   }
 
-  const effectDropdownVisibility = useCallback(() => {
-    console.log(autocompletions)
-    if (autocompletions.length) {
+  const handleFocus = useCallback(() => {
+    if (autocompletions.length > 0) {
       setSearchDropdownVisible(true)
-      return
     }
-    setSearchDropdownVisible(false)
   }, [autocompletions])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target
+
+      if (
+        target instanceof HTMLElement &&
+        searchControlRef.current &&
+        !searchControlRef.current.contains(target)
+      ) {
+        setSearchDropdownVisible(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [searchControlRef])
 
   const effectAutofocus = useCallback(() => {
     if (autoFocus) {
@@ -97,7 +119,6 @@ export const useSearchControl = ({
     }
   }, [autoFocus])
 
-  useEffect(effectDropdownVisibility, [effectDropdownVisibility])
   useEffect(effectAutofocus, [effectAutofocus])
 
   return {
@@ -111,5 +132,6 @@ export const useSearchControl = ({
     handleEscClose,
     handleChange,
     handleReset,
+    handleFocus,
   }
 }
