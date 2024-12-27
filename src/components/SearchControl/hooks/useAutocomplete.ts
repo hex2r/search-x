@@ -1,21 +1,18 @@
-import { useState, useEffect, useCallback } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useState, useEffect, useCallback, useDeferredValue } from "react"
+import { some, filter, concat } from "lodash-es"
 import type { KeyboardEvent } from "react"
-import { fetchAutocompletions } from "../../../api"
 import {
   convertToSearchAutocompletions,
   convertToHistoryAutocompletions,
+  isNotLowerCaseEqual,
 } from "../../../utils"
-import {
-  API_AUTOCOMPLETIONS_URL,
-  MAX_DISPLAYED_SUGGESTIONS,
-  SEARCH_QUERY_PARAM,
-} from "../../../config"
+import { MAX_DISPLAYED_AUTOCOMPLETIONS } from "../../../config"
 import type {
   BasicAutocompletion,
   SearchAutocompletion,
   HistoryAutocompletion,
 } from "../types"
+import { useFetchAutocompletions } from "./useFetchAutocompletions"
 
 export const useAutocomplete = ({
   input,
@@ -24,6 +21,11 @@ export const useAutocomplete = ({
   input: string
   query: string
 }) => {
+  const {
+    data: fetchedAutocompletions,
+    error,
+    isFetched,
+  } = useFetchAutocompletions(input)
   const [searchAutocompletions, setSearchAutocompletions] = useState<
     SearchAutocompletion[]
   >([])
@@ -33,77 +35,78 @@ export const useAutocomplete = ({
   const [autocompletions, setAutocompletions] = useState<
     (SearchAutocompletion | HistoryAutocompletion)[]
   >([])
-  const {
-    data: fetchedAutocompletions,
-    isPending: isFetching,
-    error: isFetchingError,
-  } = useQuery({
-    queryKey: ["searchAutocompletions", input.trim()],
-    queryFn: () =>
-      fetchAutocompletions({
-        url: `${API_AUTOCOMPLETIONS_URL}/?${SEARCH_QUERY_PARAM}=${input.trim()}`,
-      }),
-    enabled: !!input.trim(),
-  })
 
-  const storeSearchAutocompletions = useCallback(() => {
-    if (isFetching || !fetchedAutocompletions) return
+  const effectSetSearchAutocompletions = useCallback(() => {
+    if (!isFetched) return
 
-    if (isFetchingError) {
+    const { results } = fetchedAutocompletions
+
+    if (error || !results.length) {
       setSearchAutocompletions([])
     }
 
-    setSearchAutocompletions(() => [
-      ...convertToSearchAutocompletions<
-        BasicAutocompletion,
-        SearchAutocompletion
-      >(fetchedAutocompletions?.results),
-    ])
-  }, [fetchedAutocompletions, isFetching, isFetchingError])
+    setSearchAutocompletions(
+      concat(
+        convertToSearchAutocompletions<
+          BasicAutocompletion,
+          SearchAutocompletion
+        >(results)
+      )
+    )
+  }, [fetchedAutocompletions, isFetched, error])
 
-  const storeHistoryAutocompletion = useCallback(() => {
+  const effectSetHistoryAutocompletions = useCallback(() => {
     if (!query) return
-    if (historyAutocompletions.some((item) => item.search === query)) return
+    if (some(historyAutocompletions, { search: query })) return
 
-    setHistoryAutocompletions((prevState) => [
-      ...convertToHistoryAutocompletions<string, HistoryAutocompletion>(
-        [query],
-        {
-          onDelete: (_: KeyboardEvent<HTMLButtonElement>, id: string) => {
-            setHistoryAutocompletions((prevState) =>
-              prevState.filter(
-                ({ id: historyAutocompletionID }) =>
-                  id !== historyAutocompletionID
+    setHistoryAutocompletions((state) =>
+      concat(
+        convertToHistoryAutocompletions<string, HistoryAutocompletion>(
+          [query],
+          {
+            onDelete: (_: KeyboardEvent<HTMLButtonElement>, id: string) => {
+              setHistoryAutocompletions((state) =>
+                filter(
+                  state,
+                  ({ id: historyAutocompletionID }) =>
+                    id !== historyAutocompletionID
+                )
               )
-            )
-          },
-        }
-      ),
-      ...prevState,
-    ])
+            },
+          }
+        ),
+        state
+      )
+    )
   }, [query, historyAutocompletions])
 
-  const handleAutoCompletions = useCallback(() => {
-    setAutocompletions(() => [
-      ...historyAutocompletions.filter(
-        ({ search }) => search.toLocaleLowerCase() !== query.toLocaleLowerCase()
-      ),
-      ...(input
-        ? searchAutocompletions.filter(
-            ({ search }) =>
-              search.toLocaleLowerCase() !== input.trim().toLocaleLowerCase()
-          )
-        : []),
-    ])
+  const effectSetAutocompletions = useCallback(() => {
+    const preparedHistoryAutocompletions = filter(
+      historyAutocompletions,
+      ({ search }) => isNotLowerCaseEqual(search, query)
+    )
+    const preparedSearchAutocompletions = filter(
+      searchAutocompletions,
+      ({ search }) => isNotLowerCaseEqual(search, input)
+    )
+
+    setAutocompletions(() =>
+      [preparedHistoryAutocompletions, preparedSearchAutocompletions].flat()
+    )
   }, [input, query, historyAutocompletions, searchAutocompletions])
 
-  useEffect(storeHistoryAutocompletion, [storeHistoryAutocompletion])
+  const deferredAutocompletions = useDeferredValue(autocompletions)
 
-  useEffect(storeSearchAutocompletions, [storeSearchAutocompletions])
+  useEffect(effectSetSearchAutocompletions, [effectSetSearchAutocompletions])
 
-  useEffect(handleAutoCompletions, [handleAutoCompletions])
+  useEffect(effectSetHistoryAutocompletions, [effectSetHistoryAutocompletions])
+
+  useEffect(effectSetAutocompletions, [effectSetAutocompletions])
 
   return {
-    autocompletions: autocompletions.slice(0, MAX_DISPLAYED_SUGGESTIONS),
+    autocompletions: deferredAutocompletions.slice(
+      0,
+      MAX_DISPLAYED_AUTOCOMPLETIONS
+    ),
   }
 }

@@ -42,7 +42,7 @@ export const useSearchControl = ({
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.value.trim() || autocompletions.length === 0) {
+    if (!e.target.value.trim() || !autocompletions.length) {
       setSearchDropdownVisible(false)
     } else {
       setSearchDropdownVisible(true)
@@ -78,10 +78,18 @@ export const useSearchControl = ({
   }
 
   const handleFocus = useCallback(() => {
-    if (autocompletions.length > 0) {
+    if (autocompletions.length) {
       setSearchDropdownVisible(true)
     }
   }, [autocompletions])
+
+  const effectAutofocus = useCallback(() => {
+    if (input) return
+
+    if (autoFocus) {
+      focusSearchInput()
+    }
+  }, [input, autoFocus])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -103,15 +111,13 @@ export const useSearchControl = ({
     }
   }, [searchControlRef])
 
-  const effectAutofocus = useCallback(() => {
-    if (input) return
-
-    if (autoFocus) {
-      focusSearchInput()
-    }
-  }, [input, autoFocus])
-
   useEffect(effectAutofocus, [effectAutofocus])
+
+  useEffect(() => {
+    if (!autocompletions.length) {
+      setSearchDropdownVisible(false)
+    }
+  }, [autocompletions])
 
   return {
     input,

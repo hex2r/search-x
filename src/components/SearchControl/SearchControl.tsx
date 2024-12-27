@@ -63,6 +63,7 @@ export const SearchControl: FC<SearchControl> = ({
           name="search"
           onChange={handleChange}
           onFocus={handleFocus}
+          onClick={handleFocus}
         />
         <Styled.SearchControlBar $scale={scale}>
           {input && (

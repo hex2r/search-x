@@ -4,3 +4,4 @@ export {
   convertToSearchAutocompletions,
 } from "./convertToAutocompletion"
 export { includesString } from "./includesString"
+export { isNotLowerCaseEqual } from "./isNotLowerCaseEqual"

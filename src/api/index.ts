@@ -4,6 +4,7 @@ import {
   ENDPOINT_AUTOCOMPLETIONS,
   ENDPOINT_SEARCH,
   RESPONSE_TIMEOUT,
+  API_AUTOCOMPLETIONS_URL,
 } from "../config"
 import { getAutocompletions, getSearchResults } from "./selectors"
 import { SearchEntry } from "../components/ResultsList/types"
@@ -59,6 +60,10 @@ export const fetchAutocompletions = async ({
     timeout,
     callback: () => getAutocompletions(store.results, query),
   })
+}
+
+export const buildAutocompletionsURL = (queryParam: string) => {
+  return `${API_AUTOCOMPLETIONS_URL}/?${SEARCH_QUERY_PARAM}=${queryParam}`
 }
 
 export const fetchSearchResults = async ({
