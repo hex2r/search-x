@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { useDebounce } from "@uidotdev/usehooks"
 import { useSearchContext } from "../../contexts"
 import { Typography } from "../Typography"
 import * as Styled from "./ResultsList.style"
@@ -14,8 +15,9 @@ import {
 
 const ResultsList = () => {
   const { query } = useSearchContext()
+  const debouncedQuery = useDebounce(query, 500)
   const { error, data, isPending } = useQuery({
-    queryKey: ["searchResults", query],
+    queryKey: ["searchResults", debouncedQuery],
     queryFn: async () =>
       fetchSearchResults({
         url: `${API_SEARCH_URL}/?${SEARCH_QUERY_PARAM}=${query}`,
