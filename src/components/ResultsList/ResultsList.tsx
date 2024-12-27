@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { useThemeContext, useSearchContext } from "../../contexts"
+import { useSearchContext } from "../../contexts"
 import { Typography } from "../Typography"
 import * as Styled from "./ResultsList.style"
 import { Link } from "../Link"
@@ -13,7 +13,6 @@ import {
 } from "../../config"
 
 const ResultsList = () => {
-  const theme = useThemeContext()
   const { query } = useSearchContext()
   const { error, data, isPending } = useQuery({
     queryKey: ["searchResults", query],
@@ -23,6 +22,9 @@ const ResultsList = () => {
       }),
     enabled: !!query,
   })
+
+  const renderMeta = (totalResults: number, responseTimeout: number) =>
+    `${totalResults} results found (${responseTimeout} seconds)`
 
   if (!query) return null
 
@@ -42,20 +44,14 @@ const ResultsList = () => {
     <Styled.ResultsContainer>
       <Styled.ResultsMetaBar>
         <Typography tag="p">
-          {data.results.length} results found ({RESPONSE_TIMEOUT / 1000}{" "}
-          seconds)
+          {renderMeta(data.results.length, RESPONSE_TIMEOUT / 1000)}
         </Typography>
       </Styled.ResultsMetaBar>
       <Styled.ResultsList aria-label="Search Results List">
         {data?.results.map(({ id, title, description, url }) => (
           <Styled.ResultsListItem key={id}>
             <div>
-              <Link
-                href={url}
-                target="_blank"
-                theme={theme}
-                cx={{ display: "inline-block" }}
-              >
+              <Link href={url} target="_blank" cx={{ display: "inline-block" }}>
                 <Typography tag="h3">{title}</Typography>
               </Link>
             </div>

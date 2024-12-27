@@ -1,8 +1,16 @@
-import { PropsWithChildren } from "react"
+import { PropsWithChildren, ReactNode } from "react"
 import * as Styled from "./SearchPage.style"
 
-const SearchPageTemplate = ({ children }: PropsWithChildren) => {
-  return <Styled.SearchPage>{children}</Styled.SearchPage>
+const SearchPageTemplate = ({
+  children,
+  logo,
+}: { logo: ReactNode } & PropsWithChildren) => {
+  return (
+    <Styled.SearchPage>
+      <div>{logo}</div>
+      {children}
+    </Styled.SearchPage>
+  )
 }
 
 export default SearchPageTemplate

@@ -17,10 +17,6 @@ export const SEARCH_QUERY_PARAM = "query"
 export const RESPONSE_TIMEOUT = 500
 
 //-- APPLICATION
-export const THEMES = {
-  material: "material",
-} as const
-
 export const SCALES = {
   small: "small",
   medium: "medium",
@@ -41,7 +37,5 @@ export const KEYS = {
 export const MAX_DISPLAYED_SUGGESTIONS = 10
 
 export const ITEMS_PER_PAGE = 1
-
-export const DEFAULT_THEME = THEMES.material
 
 export const DEFAULT_SCALE = SCALES.medium

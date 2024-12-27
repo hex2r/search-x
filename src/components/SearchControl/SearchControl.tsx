@@ -1,6 +1,6 @@
 import type { FC } from "react"
 import * as Styled from "./SearchControl.style"
-import { useThemeContext, useSearchContext } from "../../contexts"
+import { useSearchContext } from "../../contexts"
 import { DEFAULT_SCALE } from "../../config"
 import { SearchDropdown } from "./SearchDropdown"
 import { InputField } from "../InputField"
@@ -21,7 +21,6 @@ export const SearchControl: FC<SearchControl> = ({
   scale = DEFAULT_SCALE,
   autoFocus = false,
 }) => {
-  const theme = useThemeContext()
   const { query, search } = useSearchContext()
   const {
     input,
@@ -50,7 +49,7 @@ export const SearchControl: FC<SearchControl> = ({
     >
       <form onSubmit={handleSearchSubmit}>
         <Styled.SearchLabel $scale={scale} htmlFor={id}>
-          <Icon scale={scale} theme={theme}>
+          <Icon scale={scale}>
             <IconSearch />
           </Icon>
         </Styled.SearchLabel>
@@ -59,7 +58,7 @@ export const SearchControl: FC<SearchControl> = ({
           ref={searchInputRef}
           value={input}
           scale={scale}
-          // Note: type=search resets on press Esc
+          // Note: type=search auto resets on press Esc
           type="text"
           name="search"
           onChange={handleChange}
@@ -68,7 +67,7 @@ export const SearchControl: FC<SearchControl> = ({
         <Styled.SearchControlBar $scale={scale}>
           {input && (
             <Styled.ButtonResetSearch type="reset" onClick={handleReset}>
-              <Icon scale={scale} theme={theme}>
+              <Icon scale={scale}>
                 <IconClose />
               </Icon>
             </Styled.ButtonResetSearch>
@@ -76,10 +75,8 @@ export const SearchControl: FC<SearchControl> = ({
         </Styled.SearchControlBar>
         <input type="submit" hidden />
       </form>
-      {/* {autocompletions.length > 0 && ( */}
       {isSearchDropdownVisible && (
         <SearchDropdown
-          theme={theme}
           scale={scale}
           items={autocompletions}
           onSelectAutocompletionItem={handleSelectAutocompletionItem}

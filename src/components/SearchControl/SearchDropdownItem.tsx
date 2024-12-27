@@ -10,11 +10,10 @@ import type { SearchAutocompletion, HistoryAutocompletion } from "./types"
 
 export const SearchAutocompletionItem = ({
   scale,
-  theme,
   search,
-}: SearchAutocompletion & Global.ScaleProperty & Global.ThemeProperty) => (
+}: SearchAutocompletion & Global.ScaleProperty) => (
   <>
-    <Icon scale={scale} theme={theme}>
+    <Icon scale={scale}>
       <IconSearch />
     </Icon>
     <Typography cropped tag="div" cx={{ flexGrow: 1 }}>
@@ -25,11 +24,10 @@ export const SearchAutocompletionItem = ({
 
 export const HistoryAutocompletionItem = ({
   scale,
-  theme,
   search,
   id,
   onDelete,
-}: HistoryAutocompletion & Global.ScaleProperty & Global.ThemeProperty) => {
+}: HistoryAutocompletion & Global.ScaleProperty) => {
   const handleDelete = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     onDelete(e, id)
@@ -45,7 +43,7 @@ export const HistoryAutocompletionItem = ({
 
   return (
     <>
-      <Icon scale={scale} theme={theme}>
+      <Icon scale={scale}>
         <IconHistory />
       </Icon>
       <Typography cropped tag="div" cx={{ flexGrow: 1, color: "#52188c" }}>

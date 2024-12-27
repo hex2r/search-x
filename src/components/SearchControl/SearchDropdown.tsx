@@ -1,11 +1,6 @@
 import type { FC, KeyboardEvent, MouseEvent } from "react"
 import * as Styled from "./SearchDropdown.style"
-import {
-  KEYS,
-  DEFAULT_SCALE,
-  DEFAULT_THEME,
-  SEARCH_AUTOCOMPLETION_TYPES,
-} from "../../config"
+import { KEYS, DEFAULT_SCALE, SEARCH_AUTOCOMPLETION_TYPES } from "../../config"
 import type { Global } from "../../config/types"
 import type { Autocompletion } from "./types"
 import { DropdownList, DropdownListItem } from "../DropdownList"
@@ -20,13 +15,11 @@ type SearchDropdown<T extends object> = {
     e: MouseEvent<HTMLLIElement> | KeyboardEvent<HTMLLIElement>,
     search: string
   ) => void
-} & Global.ScaleProperty &
-  Global.ThemeProperty
+} & Global.ScaleProperty
 
 export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
   items,
   scale = DEFAULT_SCALE,
-  theme = DEFAULT_THEME,
   onSelectAutocompletionItem,
 }) => {
   const handleClick = (e: MouseEvent<HTMLLIElement>, searchQuery: string) => {
@@ -44,7 +37,7 @@ export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
   }
 
   return (
-    <Styled.SearchDropdown $theme={theme} $scale={scale} tabIndex={-1}>
+    <Styled.SearchDropdown $scale={scale} tabIndex={-1}>
       <DropdownList>
         {items.map((item) => (
           <DropdownListItem
@@ -54,13 +47,9 @@ export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
             onKeyDown={(e) => handleKeyDown(e, item.search)}
           >
             {item.type === SEARCH_AUTOCOMPLETION_TYPES.HISTORY ? (
-              <HistoryAutocompletionItem
-                scale={scale}
-                theme={theme}
-                {...item}
-              />
+              <HistoryAutocompletionItem scale={scale} {...item} />
             ) : (
-              <SearchAutocompletionItem scale={scale} theme={theme} {...item} />
+              <SearchAutocompletionItem scale={scale} {...item} />
             )}
           </DropdownListItem>
         ))}

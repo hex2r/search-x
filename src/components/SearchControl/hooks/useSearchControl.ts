@@ -104,10 +104,12 @@ export const useSearchControl = ({
   }, [searchControlRef])
 
   const effectAutofocus = useCallback(() => {
+    if (input) return
+
     if (autoFocus) {
       focusSearchInput()
     }
-  }, [autoFocus])
+  }, [input, autoFocus])
 
   useEffect(effectAutofocus, [effectAutofocus])
 

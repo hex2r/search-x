@@ -7,23 +7,8 @@ const SCALES = {
   large: 1.5,
 } satisfies Global.ComponentScale
 
-const THEMES = {
-  material: () => `
-      color: #9aa0a6
-    `,
-} satisfies Global.ComponentTheme
-
-export const IconPlaceholder = styled.div<{
-  $scale: Global.Scale
-}>`
-  width: ${(props) => SCALES[props.$scale]}rem;
-  height: ${(props) => SCALES[props.$scale]}rem;
-  background: #999;
-`
-
 export const Icon = styled.div<{
   $scale: Global.Scale
-  $theme: Global.Theme
 }>`
   &,
   svg {
@@ -32,5 +17,5 @@ export const Icon = styled.div<{
     fill: currentColor;
   }
 
-  ${(props) => THEMES[props.$theme]()}
+  color: #9aa0a6;
 `
