@@ -1,6 +1,11 @@
 import type { FC } from "react"
 import * as Styled from "./Pagination.styled"
-import type { Pagination } from "./types"
+
+export type Pagination = {
+  totalPages: number
+  currentPage: number
+  onSelect: (page: number) => void
+}
 
 export const Pagination: FC<Pagination> = ({
   totalPages = 1,

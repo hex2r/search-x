@@ -8,8 +8,8 @@ import type {
   SetStateAction,
 } from "react"
 import { KEYS } from "../../../config"
-import { SEARCH_QUERY_PARAM } from "../../../config"
 import { useAutocomplete } from "./useAutocomplete"
+import { updateUrlQueryParameter } from "../helpers/updateUrlSearchParameter"
 
 type UseSearchControl = {
   autoFocus: boolean
@@ -60,18 +60,7 @@ export const useSearchControl = ({
     e.preventDefault()
 
     if (!input.trim() || input === contextQuery) return
-
-    const url = new URL(window.location.href)
-
-    if (!url.searchParams.has(SEARCH_QUERY_PARAM)) {
-      url.searchParams.append(SEARCH_QUERY_PARAM, input)
-    }
-
-    if (url.searchParams.get(SEARCH_QUERY_PARAM) !== input) {
-      url.searchParams.set(SEARCH_QUERY_PARAM, input)
-    }
-
-    history.pushState({}, "", url.href)
+    updateUrlQueryParameter(input)
 
     search(input.trim())
     setSearchDropdownVisible(false)
@@ -82,6 +71,7 @@ export const useSearchControl = ({
     searchQuery: string
   ) => {
     focusSearchInput()
+    updateUrlQueryParameter(searchQuery)
     setInput(searchQuery)
     search(searchQuery)
     setSearchDropdownVisible(false)

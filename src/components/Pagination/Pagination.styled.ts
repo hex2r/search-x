@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 export const Pagination = styled.div`
   display: flex;
   gap: 1rem;
+  align-self: center;
 `
 
 export const PaginationList = styled.div`

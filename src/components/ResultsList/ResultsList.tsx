@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useThemeContext, useSearchContext } from "../../contexts"
 import { Typography } from "../Typography"
@@ -7,7 +6,11 @@ import { Link } from "../Link"
 import { ErrorBanner } from "../Error"
 
 import { fetchSearchResults } from "../../api"
-import { SEARCH_QUERY_PARAM, API_SEARCH_URL } from "../../config"
+import {
+  SEARCH_QUERY_PARAM,
+  API_SEARCH_URL,
+  RESPONSE_TIMEOUT,
+} from "../../config"
 
 const ResultsList = () => {
   const theme = useThemeContext()
@@ -37,26 +40,29 @@ const ResultsList = () => {
 
   return (
     <Styled.ResultsContainer>
-      <Suspense fallback={<span>Loading...</span>}>
-        <Styled.ResultsList aria-label="Search Results List">
-          {data?.results.map(({ id, title, description, url }) => (
-            <Styled.ResultsListItem key={id}>
-              <div>
-                <Link
-                  href={url}
-                  target="_blank"
-                  theme={theme}
-                  cx={{ display: "inline-block" }}
-                >
-                  <Typography tag="h3">{title}</Typography>
-                </Link>
-              </div>
-              <Typography tag="p">{description}</Typography>
-            </Styled.ResultsListItem>
-          ))}
-        </Styled.ResultsList>
-        {/* <Pagination totalPages={total} currentPage={page} /> */}
-      </Suspense>
+      <Styled.ResultsMetaBar>
+        <Typography tag="p">
+          {data.results.length} results found ({RESPONSE_TIMEOUT / 1000}{" "}
+          seconds)
+        </Typography>
+      </Styled.ResultsMetaBar>
+      <Styled.ResultsList aria-label="Search Results List">
+        {data?.results.map(({ id, title, description, url }) => (
+          <Styled.ResultsListItem key={id}>
+            <div>
+              <Link
+                href={url}
+                target="_blank"
+                theme={theme}
+                cx={{ display: "inline-block" }}
+              >
+                <Typography tag="h3">{title}</Typography>
+              </Link>
+            </div>
+            <Typography tag="p">{description}</Typography>
+          </Styled.ResultsListItem>
+        ))}
+      </Styled.ResultsList>
     </Styled.ResultsContainer>
   )
 }

@@ -40,6 +40,8 @@ export const KEYS = {
 
 export const MAX_DISPLAYED_SUGGESTIONS = 10
 
+export const ITEMS_PER_PAGE = 1
+
 export const DEFAULT_THEME = THEMES.material
 
 export const DEFAULT_SCALE = SCALES.medium
