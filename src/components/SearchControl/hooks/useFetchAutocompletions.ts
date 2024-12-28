@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useDebounce } from "@uidotdev/usehooks"
 import { fetchAutocompletions, buildAutocompletionsURL } from "../../../api"
 import { BasicAutocompletion } from "../types"
+import { useLocalCache } from "./useCache"
 
 type Data = { results: BasicAutocompletion[] }
 
@@ -10,6 +11,8 @@ const defaultData = {
 }
 
 export const useFetchAutocompletions = (query: string) => {
+  const { setCache, getFromCache, isExistsInCache } =
+    useLocalCache("autocompletions")
   const [data, setData] = useState<Data>(defaultData)
   const [error, setError] = useState<Error | null>(null)
   const [isFetched, setFetched] = useState(false)
@@ -29,6 +32,7 @@ export const useFetchAutocompletions = (query: string) => {
 
         if (data.results.length) {
           setData(data)
+          setCache(debouncedQuery, data)
         } else {
           setData(defaultData)
         }
@@ -39,8 +43,12 @@ export const useFetchAutocompletions = (query: string) => {
       }
     }
 
-    fetchData()
-  }, [debouncedQuery])
+    if (isExistsInCache(debouncedQuery)) {
+      setData(getFromCache<Data>(debouncedQuery))
+    } else {
+      fetchData()
+    }
+  }, [debouncedQuery, setCache, isExistsInCache, getFromCache])
 
   useEffect(effectCachedFetchAutocompletions, [
     effectCachedFetchAutocompletions,
