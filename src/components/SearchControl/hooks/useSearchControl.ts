@@ -45,7 +45,7 @@ export default function useSearchControl({
   }
 
   const onReset = () => {
-    setInput(contextQuery || defaultValue)
+    setInput(defaultValue)
     focusSearchInput()
   }
 

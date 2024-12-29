@@ -5,7 +5,9 @@ import { Link } from "../Link"
 import useQuerySearchResults from "./hooks/useQuerySearchResults"
 import { RESPONSE_TIMEOUT } from "../../config"
 import { getMeta } from "./helpers/getMeta"
+import { Progress } from "../Loading"
 
+// const isPending = true
 export default function ResultsList() {
   const { query } = useSearchContext()
   const { searchResults, isPending, error } = useQuerySearchResults(query)
@@ -15,7 +17,7 @@ export default function ResultsList() {
   if (error) throw error
 
   if (isPending) {
-    return <Typography tag="p">Loading...</Typography>
+    return <Progress />
   }
 
   if (!searchResults.length) {
@@ -25,7 +27,7 @@ export default function ResultsList() {
   return (
     <Styled.ResultsContainer>
       <Styled.ResultsMetaBar>
-        <Typography tag="p">
+        <Typography tag="p" cx={{ fontSize: "0.875rem" }}>
           {getMeta(searchResults.length, RESPONSE_TIMEOUT / 1000)}
         </Typography>
       </Styled.ResultsMetaBar>
@@ -33,6 +35,15 @@ export default function ResultsList() {
         {searchResults!.map(({ id, title, description, url }) => (
           <Styled.ResultsListItem key={id}>
             <div>
+              <Typography
+                tag="p"
+                cx={{
+                  fontSize: "0.75rem",
+                  marginBottom: "0.375rem",
+                }}
+              >
+                {url}
+              </Typography>
               <Link href={url} target="_blank" cx={{ display: "inline-block" }}>
                 <Typography tag="h3">{title}</Typography>
               </Link>

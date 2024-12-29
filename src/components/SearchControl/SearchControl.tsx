@@ -87,6 +87,7 @@ const SearchControl: FC<SearchControl> = ({
           name="search"
           value={input}
           scale={scale}
+          autoFocus={autoFocus}
           onChange={(e) => {
             onChange(e)
             handleDropdown()

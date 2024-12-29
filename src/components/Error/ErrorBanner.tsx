@@ -1,4 +1,5 @@
 import { Typography } from "../Typography"
+import * as Styled from "./ErrorBanner.style"
 
 const ErrorBanner = ({
   name = "Error",
@@ -8,13 +9,15 @@ const ErrorBanner = ({
   message: string
 }) => {
   return (
-    <pre>
-      <code>
-        <Typography tag="h3">{name}!</Typography>
-        <br />
-        <Typography tag="p">{message}</Typography>
-      </code>
-    </pre>
+    <Styled.ErrorBanner>
+      <pre>
+        <code>
+          <Typography tag="h3">{name}!</Typography>
+          <br />
+          <Typography tag="p">{message}</Typography>
+        </code>
+      </pre>
+    </Styled.ErrorBanner>
   )
 }
 
