@@ -15,7 +15,7 @@ export type InputField = InputHTMLAttributes<HTMLInputElement> & {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
-export const InputField = forwardRef<HTMLInputElement, InputField>(
+const InputField = forwardRef<HTMLInputElement, InputField>(
   ({ type = "text", scale = DEFAULT_SCALE, cx, onChange, ...props }, ref) => {
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       onChange(e)
@@ -33,3 +33,5 @@ export const InputField = forwardRef<HTMLInputElement, InputField>(
     )
   }
 )
+
+export default InputField

@@ -1,3 +1,4 @@
+import { memo } from "react"
 import type { FC, KeyboardEvent, MouseEvent } from "react"
 import * as Styled from "./SearchDropdown.style"
 import { KEYS, DEFAULT_SCALE, SEARCH_AUTOCOMPLETION_TYPES } from "../../config"
@@ -11,19 +12,19 @@ import {
 
 type SearchDropdown<T extends object> = {
   items: T[]
-  onSelectAutocompletionItem: (
+  onSelectAutocompletion: (
     e: MouseEvent<HTMLLIElement> | KeyboardEvent<HTMLLIElement>,
     search: string
   ) => void
 } & Global.ScaleProperty
 
-export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
+const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
   items,
   scale = DEFAULT_SCALE,
-  onSelectAutocompletionItem,
+  onSelectAutocompletion,
 }) => {
   const handleClick = (e: MouseEvent<HTMLLIElement>, searchQuery: string) => {
-    onSelectAutocompletionItem(e, searchQuery)
+    onSelectAutocompletion(e, searchQuery)
   }
 
   const handleKeyDown = (
@@ -32,7 +33,7 @@ export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
   ) => {
     if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
       e.preventDefault()
-      onSelectAutocompletionItem(e, searchQuery)
+      onSelectAutocompletion(e, searchQuery)
     }
   }
 
@@ -57,3 +58,5 @@ export const SearchDropdown: FC<SearchDropdown<Autocompletion>> = ({
     </Styled.SearchDropdown>
   )
 }
+
+export default memo(SearchDropdown)

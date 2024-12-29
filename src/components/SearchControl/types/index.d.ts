@@ -1,13 +1,13 @@
 import type { MouseEvent, KeyboardEvent } from "react"
 
-export type BasicAutocompletion = {
+export type FetchedAutocompletion = {
   id: string
   search: string
 }
 
 export type SearchAutocompletion = {
   type: "default"
-} & BasicAutocompletion
+} & FetchedAutocompletion
 
 export type HistoryAutocompletion = {
   type: "history"
@@ -15,6 +15,6 @@ export type HistoryAutocompletion = {
     e: MouseEvent<HTMLButtonElement> | KeyboardEvent<HTMLButtonElement>,
     search: string
   ) => void
-} & BasicAutocompletion
+} & FetchedAutocompletion
 
 export type Autocompletion = SearchAutocompletion | HistoryAutocompletion

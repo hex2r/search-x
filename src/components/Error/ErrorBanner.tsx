@@ -11,6 +11,7 @@ const ErrorBanner = ({
     <pre>
       <code>
         <Typography tag="h3">{name}!</Typography>
+        <br />
         <Typography tag="p">{message}</Typography>
       </code>
     </pre>

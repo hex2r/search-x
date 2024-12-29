@@ -1,112 +1,64 @@
-import { useState, useEffect, useCallback, useDeferredValue } from "react"
-import { some, filter, concat } from "lodash-es"
-import type { KeyboardEvent } from "react"
-import {
-  convertToSearchAutocompletions,
-  convertToHistoryAutocompletions,
-  isNotLowerCaseEqual,
-} from "../../../utils"
+import { useState, useEffect, useCallback, useRef } from "react"
+import useHistoryAutocompletions from "./useHistoryAutocompletions"
+import { areNotCaseInsensitiveEqual } from "../../../utils"
 import { MAX_DISPLAYED_AUTOCOMPLETIONS } from "../../../config"
 import type {
-  BasicAutocompletion,
   SearchAutocompletion,
   HistoryAutocompletion,
+  FetchedAutocompletion,
 } from "../types"
-import { useFetchAutocompletions } from "./useFetchAutocompletions"
+import { basicToSearchAutocompletion } from "../helpers/convertToAutocompletion"
+import { isEqual } from "lodash-es"
 
-export const useAutocomplete = ({
-  input,
-  query,
-}: {
+type useAutocomplete = {
   input: string
-  query: string
-}) => {
-  const {
-    data: fetchedAutocompletions,
-    error,
-    isFetched,
-  } = useFetchAutocompletions(input)
+  contextQuery: string
+  fetchedAutocompletions: FetchedAutocompletion[]
+}
+
+export default function useAutocomplete({
+  input,
+  contextQuery,
+  fetchedAutocompletions,
+}: useAutocomplete) {
   const [searchAutocompletions, setSearchAutocompletions] = useState<
     SearchAutocompletion[]
   >([])
-  const [historyAutocompletions, setHistoryAutocompletions] = useState<
-    HistoryAutocompletion[]
-  >([])
+  const { historyAutocompletions } = useHistoryAutocompletions(contextQuery)
   const [autocompletions, setAutocompletions] = useState<
     (SearchAutocompletion | HistoryAutocompletion)[]
   >([])
-
-  const effectSetSearchAutocompletions = useCallback(() => {
-    if (!isFetched) return
-
-    const { results } = fetchedAutocompletions
-
-    if (error || !results.length) {
-      setSearchAutocompletions([])
-    }
-
-    setSearchAutocompletions(
-      concat(
-        convertToSearchAutocompletions<
-          BasicAutocompletion,
-          SearchAutocompletion
-        >(results)
-      )
-    )
-  }, [fetchedAutocompletions, isFetched, error])
-
-  const effectSetHistoryAutocompletions = useCallback(() => {
-    if (!query) return
-    if (some(historyAutocompletions, { search: query })) return
-
-    setHistoryAutocompletions((state) =>
-      concat(
-        convertToHistoryAutocompletions<string, HistoryAutocompletion>(
-          [query],
-          {
-            onDelete: (_: KeyboardEvent<HTMLButtonElement>, id: string) => {
-              setHistoryAutocompletions((state) =>
-                filter(
-                  state,
-                  ({ id: historyAutocompletionID }) =>
-                    id !== historyAutocompletionID
-                )
-              )
-            },
-          }
-        ),
-        state
-      )
-    )
-  }, [query, historyAutocompletions])
+  const previousFetchedAutocompletions = useRef<FetchedAutocompletion[]>([])
 
   const effectSetAutocompletions = useCallback(() => {
-    const preparedHistoryAutocompletions = filter(
-      historyAutocompletions,
-      ({ search }) => isNotLowerCaseEqual(search, query)
+    const preparedHistoryAutocompletions = historyAutocompletions.filter(
+      ({ search }) => areNotCaseInsensitiveEqual(search, contextQuery)
     )
-    const preparedSearchAutocompletions = filter(
-      searchAutocompletions,
-      ({ search }) => isNotLowerCaseEqual(search, input)
+    const preparedSearchAutocompletions = input
+      ? searchAutocompletions.filter(({ search }) =>
+          areNotCaseInsensitiveEqual(search, contextQuery)
+        )
+      : []
+
+    setAutocompletions([
+      ...preparedHistoryAutocompletions,
+      ...preparedSearchAutocompletions,
+    ])
+  }, [input, contextQuery, historyAutocompletions, searchAutocompletions])
+
+  useEffect(() => {
+    if (isEqual(previousFetchedAutocompletions.current, fetchedAutocompletions))
+      return
+
+    setSearchAutocompletions(
+      fetchedAutocompletions.map((item) => basicToSearchAutocompletion(item))
     )
-
-    setAutocompletions(() =>
-      [preparedHistoryAutocompletions, preparedSearchAutocompletions].flat()
-    )
-  }, [input, query, historyAutocompletions, searchAutocompletions])
-
-  const deferredAutocompletions = useDeferredValue(autocompletions)
-
-  useEffect(effectSetSearchAutocompletions, [effectSetSearchAutocompletions])
-
-  useEffect(effectSetHistoryAutocompletions, [effectSetHistoryAutocompletions])
+    previousFetchedAutocompletions.current = fetchedAutocompletions
+  }, [fetchedAutocompletions])
 
   useEffect(effectSetAutocompletions, [effectSetAutocompletions])
 
   return {
-    autocompletions: deferredAutocompletions.slice(
-      0,
-      MAX_DISPLAYED_AUTOCOMPLETIONS
-    ),
+    autocompletions: autocompletions.slice(0, MAX_DISPLAYED_AUTOCOMPLETIONS),
   }
 }

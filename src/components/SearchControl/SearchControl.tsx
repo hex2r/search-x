@@ -1,14 +1,19 @@
+import { memo, useEffect, useDeferredValue } from "react"
 import type { FC } from "react"
+// import { useForm } from "react-hook-form"
 import * as Styled from "./SearchControl.style"
 import { useSearchContext } from "../../contexts"
 import { DEFAULT_SCALE } from "../../config"
-import { SearchDropdown } from "./SearchDropdown"
+import SearchDropdown from "./SearchDropdown"
 import { InputField } from "../InputField"
 import { Icon } from "../Icon"
 import IconSearch from "../../assets/search.svg?react"
 import IconClose from "../../assets/close.svg?react"
 import type { Global } from "../../config/types/"
-import { useSearchControl } from "./hooks/useSearchControl"
+import useSearchControl from "./hooks/useSearchControl"
+import useQueryAutocompletions from "./hooks/useQueryAutocompletions"
+import useAutocomplete from "./hooks/useAutocomplete"
+import useEffectOutsideClick from "../../hooks/useOutsideClick"
 
 export type SearchControl = {
   id: string
@@ -16,7 +21,7 @@ export type SearchControl = {
   scale?: Global.Scale
 }
 
-export const SearchControl: FC<SearchControl> = ({
+const SearchControl: FC<SearchControl> = ({
   id,
   scale = DEFAULT_SCALE,
   autoFocus = false,
@@ -24,50 +29,74 @@ export const SearchControl: FC<SearchControl> = ({
   const { query, search } = useSearchContext()
   const {
     input,
-    autocompletions,
     searchInputRef,
     searchControlRef,
-    isSearchDropdownVisible,
-    handleSelectAutocompletionItem,
-    handleSearchSubmit,
-    handleEscClose,
-    handleChange,
-    handleReset,
-    handleFocus,
+    isDropdownVisible,
+    setDropdownVisible,
+    onSelectAutocompletion,
+    onSubmit,
+    onPressEsc,
+    onChange,
+    onReset,
   } = useSearchControl({
     autoFocus,
     search,
     contextQuery: query,
   })
+  const { fetchedAutocompletions, error: fetchError } =
+    useQueryAutocompletions(input)
+  const { autocompletions } = useAutocomplete({
+    input,
+    contextQuery: query,
+    fetchedAutocompletions: fetchError ? [] : fetchedAutocompletions || [],
+  })
+
+  const deferredAutocompletions = useDeferredValue(autocompletions)
+
+  const handleDropdown = () => {
+    if (deferredAutocompletions.length) {
+      setDropdownVisible(true)
+      return
+    }
+    setDropdownVisible(false)
+  }
+
+  useEffectOutsideClick(searchControlRef, () => setDropdownVisible(false))
+  useEffect(() => {
+    if (!deferredAutocompletions.length) {
+      setDropdownVisible(false)
+    }
+  }, [deferredAutocompletions, setDropdownVisible])
 
   return (
     <Styled.SearchControl
       ref={searchControlRef}
       $scale={scale}
-      $isDropdownVisible={isSearchDropdownVisible}
-      onKeyDown={handleEscClose}
+      $isDropdownVisible={isDropdownVisible}
+      onKeyDown={onPressEsc}
     >
-      <form onSubmit={handleSearchSubmit}>
+      <form onSubmit={onSubmit}>
         <Styled.SearchLabel $scale={scale} htmlFor={id}>
           <Icon scale={scale}>
             <IconSearch />
           </Icon>
         </Styled.SearchLabel>
         <InputField
-          id={id}
           ref={searchInputRef}
+          id={id}
+          name="search"
           value={input}
           scale={scale}
-          // Note: type=search auto resets on press Esc
-          type="text"
-          name="search"
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onClick={handleFocus}
+          onChange={(e) => {
+            onChange(e)
+            handleDropdown()
+          }}
+          onFocus={handleDropdown}
+          onClick={handleDropdown}
         />
         <Styled.SearchControlBar $scale={scale}>
           {input && (
-            <Styled.ButtonResetSearch type="reset" onClick={handleReset}>
+            <Styled.ButtonResetSearch type="reset" onClick={onReset}>
               <Icon scale={scale}>
                 <IconClose />
               </Icon>
@@ -76,13 +105,15 @@ export const SearchControl: FC<SearchControl> = ({
         </Styled.SearchControlBar>
         <input type="submit" hidden />
       </form>
-      {isSearchDropdownVisible && (
+      {isDropdownVisible && (
         <SearchDropdown
           scale={scale}
-          items={autocompletions}
-          onSelectAutocompletionItem={handleSelectAutocompletionItem}
+          items={deferredAutocompletions}
+          onSelectAutocompletion={onSelectAutocompletion}
         />
       )}
     </Styled.SearchControl>
   )
 }
+
+export default memo(SearchControl)

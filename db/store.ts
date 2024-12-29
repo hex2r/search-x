@@ -41,5 +41,11 @@ export const store = {
       description:
         "GitHub is a proprietary developer platform that allows developers to create, store, manage, and share their code. It uses Git to provide distributed version control and Github itself provides access control, bug tracking, software feature requests, task management, continuous integration, and wikis for every project.",
     },
+    {
+      id: "6",
+      url: "https://github.com",
+      title: "Special chars &|!@#$%^&*()<>?\"}{[];',./`~",
+      description: "&|!@#$%^&*()<>?\"}{[];',./`~",
+    },
   ],
 }

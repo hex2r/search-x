@@ -5,14 +5,11 @@ import {
   ENDPOINT_SEARCH,
   RESPONSE_TIMEOUT,
   API_AUTOCOMPLETIONS_URL,
+  API_SEARCH_URL,
 } from "../config"
 import { getAutocompletions, getSearchResults } from "./selectors"
 import { SearchEntry } from "../components/ResultsList/types"
-import { BasicAutocompletion } from "../components/SearchControl/types"
-
-type FakeResponse<T> = Promise<{
-  results: T[]
-}>
+import type { FetchedAutocompletion } from "../components/SearchControl/types"
 
 const fakeAPIRequest = async <T>({
   succeed = true,
@@ -20,15 +17,13 @@ const fakeAPIRequest = async <T>({
   callback,
 }: {
   succeed?: boolean
-  callback: () => T[]
+  callback: () => T
   timeout?: number
-}): FakeResponse<T> => {
+}): Promise<T> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (succeed) {
-        resolve({
-          results: callback(),
-        })
+        resolve(callback())
       } else {
         reject({ status: 500, message: `Internal Server Error!` })
       }
@@ -44,7 +39,7 @@ export const fetchAutocompletions = async ({
   succeed?: boolean
   url: string
   timeout?: number
-}): FakeResponse<BasicAutocompletion> => {
+}): Promise<FetchedAutocompletion[]> => {
   const objectURL = new URL(url)
   const endpoint = `/${objectURL.pathname.split("/")[1]}`
   const query = objectURL.searchParams.get(SEARCH_QUERY_PARAM)
@@ -63,7 +58,15 @@ export const fetchAutocompletions = async ({
 }
 
 export const buildAutocompletionsURL = (queryParam: string) => {
-  return `${API_AUTOCOMPLETIONS_URL}/?${SEARCH_QUERY_PARAM}=${queryParam}`
+  return `${API_AUTOCOMPLETIONS_URL}/?${SEARCH_QUERY_PARAM}=${encodeURIComponent(
+    queryParam
+  )}`
+}
+
+export const buildSearchResultsURL = (queryParam: string) => {
+  return `${API_SEARCH_URL}/?${SEARCH_QUERY_PARAM}=${encodeURIComponent(
+    queryParam
+  )}`
 }
 
 export const fetchSearchResults = async ({
@@ -74,7 +77,7 @@ export const fetchSearchResults = async ({
   succeed?: boolean
   url: string
   timeout?: number
-}): FakeResponse<SearchEntry> => {
+}): Promise<SearchEntry[]> => {
   const objectURL = new URL(url)
   const endpoint = `/${objectURL.pathname.split("/")[1]}`
   const query = objectURL.searchParams.get(SEARCH_QUERY_PARAM)

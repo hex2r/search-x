@@ -24,8 +24,8 @@ export const SCALES = {
 } as const
 
 export const SEARCH_AUTOCOMPLETION_TYPES = {
+  DEFAULT: "default",
   HISTORY: "history",
-  SEARCH: "search",
 } as const
 
 export const KEYS = {

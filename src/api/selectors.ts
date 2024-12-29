@@ -1,20 +1,19 @@
-import { SearchEntry } from "../components/ResultsList/types"
-import type { BasicAutocompletion } from "../components/SearchControl/types"
+import { caseInsensitiveIncludes } from "../utils"
+import type { SearchEntry } from "../components/ResultsList/types"
+import type { FetchedAutocompletion } from "../components/SearchControl/types"
 
-import { includesString } from "../utils"
-
-const autoSuggestionsCache: { [query: string]: BasicAutocompletion[] } = {}
+const autoSuggestionsCache: { [query: string]: FetchedAutocompletion[] } = {}
 
 export const getAutocompletions = (
   data: SearchEntry[],
   query: string
-): BasicAutocompletion[] => {
+): FetchedAutocompletion[] => {
   if (query in autoSuggestionsCache) {
     return autoSuggestionsCache[query]
   }
 
   const results = data.reduce<unknown[]>((acc, curr) => {
-    if (includesString(curr.title, query)) {
+    if (caseInsensitiveIncludes(curr.title, query)) {
       return [
         ...acc,
         {
@@ -24,7 +23,7 @@ export const getAutocompletions = (
       ]
     }
     return acc
-  }, []) as BasicAutocompletion[]
+  }, []) as FetchedAutocompletion[]
 
   if (results.length) {
     autoSuggestionsCache[query] = [...results]
@@ -45,13 +44,13 @@ export const getSearchResults = (
 
   const results = data.reduce<unknown[]>((acc, curr) => {
     if (
-      includesString(curr.title, query) ||
-      includesString(curr.description, query)
+      caseInsensitiveIncludes(curr.title, query) ||
+      caseInsensitiveIncludes(curr.description, query)
     ) {
       return [...acc, curr]
     }
 
-    return acc as BasicAutocompletion[]
+    return acc as FetchedAutocompletion[]
   }, []) as SearchEntry[]
 
   if (results.length) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useRef } from "react"
 import type {
   MouseEvent as ReactMouseEvent,
   FormEvent,
@@ -8,65 +8,58 @@ import type {
   SetStateAction,
 } from "react"
 import { KEYS } from "../../../config"
-import { useAutocomplete } from "./useAutocomplete"
 import { updateUrlQueryParameter } from "../helpers/updateUrlSearchParameter"
 
 type UseSearchControl = {
+  defaultValue?: string
   autoFocus: boolean
   contextQuery: string
   search: Dispatch<SetStateAction<string>>
 }
 
-export const useSearchControl = ({
-  autoFocus = false,
+export default function useSearchControl({
   search,
   contextQuery,
-}: UseSearchControl) => {
+  defaultValue = "",
+}: UseSearchControl) {
   const searchControlRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const [isSearchDropdownVisible, setSearchDropdownVisible] = useState(false)
-  const [input, setInput] = useState<string>(contextQuery)
-  const { autocompletions } = useAutocomplete({ input, query: contextQuery })
+  const [input, setInput] = useState<string>(contextQuery || defaultValue)
+  const [isDropdownVisible, setDropdownVisible] = useState(false)
 
   const focusSearchInput = () => {
     searchInputRef?.current?.focus()
   }
 
-  const handleEscClose = (e: KeyboardEvent<HTMLInputElement>) => {
+  const onPressEsc = (e: KeyboardEvent<HTMLInputElement>) => {
     e.stopPropagation()
 
     if (e.key === KEYS.ESC) {
       focusSearchInput()
-      setSearchDropdownVisible(false)
+      setDropdownVisible(false)
     }
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.value.trim() || !autocompletions.length) {
-      setSearchDropdownVisible(false)
-    } else {
-      setSearchDropdownVisible(true)
-    }
-
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value)
   }
 
-  const handleReset = () => {
-    setInput("")
+  const onReset = () => {
+    setInput(contextQuery || defaultValue)
     focusSearchInput()
   }
 
-  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!input.trim() || input === contextQuery) return
     updateUrlQueryParameter(input)
 
     search(input.trim())
-    setSearchDropdownVisible(false)
+    setDropdownVisible(false)
   }
 
-  const handleSelectAutocompletionItem = (
+  const onSelectAutocompletion = (
     _: ReactMouseEvent<HTMLLIElement> | KeyboardEvent<HTMLLIElement>,
     searchQuery: string
   ) => {
@@ -74,62 +67,19 @@ export const useSearchControl = ({
     updateUrlQueryParameter(searchQuery)
     setInput(searchQuery)
     search(searchQuery)
-    setSearchDropdownVisible(false)
+    setDropdownVisible(false)
   }
-
-  const handleFocus = useCallback(() => {
-    if (autocompletions.length) {
-      setSearchDropdownVisible(true)
-    }
-  }, [autocompletions])
-
-  const effectAutofocus = useCallback(() => {
-    if (input) return
-
-    if (autoFocus) {
-      focusSearchInput()
-    }
-  }, [input, autoFocus])
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target
-
-      if (
-        target instanceof HTMLElement &&
-        searchControlRef.current &&
-        !searchControlRef.current.contains(target)
-      ) {
-        setSearchDropdownVisible(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [searchControlRef])
-
-  useEffect(effectAutofocus, [effectAutofocus])
-
-  useEffect(() => {
-    if (!autocompletions.length) {
-      setSearchDropdownVisible(false)
-    }
-  }, [autocompletions])
 
   return {
     input,
-    autocompletions,
     searchInputRef,
     searchControlRef,
-    isSearchDropdownVisible,
-    handleSelectAutocompletionItem,
-    handleSearchSubmit,
-    handleEscClose,
-    handleChange,
-    handleReset,
-    handleFocus,
+    isDropdownVisible,
+    setDropdownVisible,
+    onSelectAutocompletion,
+    onSubmit,
+    onPressEsc,
+    onChange,
+    onReset,
   }
 }

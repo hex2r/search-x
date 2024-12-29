@@ -1,1 +1,1 @@
-export { SearchControl } from "./SearchControl"
+export { default as SearchControl } from "./SearchControl"

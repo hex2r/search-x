@@ -3,7 +3,9 @@ import { SEARCH_QUERY_PARAM } from "../../../config"
 
 const useSearch = () => {
   const [query, setQuery] = useState(
-    new URL(window.location.href).searchParams.get(SEARCH_QUERY_PARAM) || ""
+    decodeURIComponent(
+      new URL(window.location.href).searchParams.get(SEARCH_QUERY_PARAM) || ""
+    )
   )
 
   return {
