@@ -78,10 +78,10 @@ export const store = {
     },
     {
       id: "11",
-      url: "https://css-tricks.com",
-      title: "Facebook",
+      url: "http://deepstatemap.live",
+      title: "DeepStateMAP",
       description:
-        "Meta Platforms, Inc., doing business as Meta, and formerly named Facebook, Inc., and TheFacebook, Inc., is an American multinational technology conglomerate based in Menlo Park, California. The company owns and operates Facebook, Instagram, Threads, and WhatsApp, among other products and services.",
+        "DeepStateMap.Live is an open-source intelligence interactive online map of the military operations of the Russian and Ukrainian armies during the Russian invasion of Ukraine. The map was created on 24 February 2022, the day of the invasion, by the non-governmental and volunteer-led organization Deep State UA. It is updated regularly to reflect the current situation on the frontline, in military formations, and other major events of the war.",
     },
     {
       id: "12",

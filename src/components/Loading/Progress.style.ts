@@ -36,7 +36,7 @@ export const Progress = styled.div`
     display: block;
     width: 100%;
     height: inherit;
-    background: black;
+    background: #454545;
     animation: ${progress} 500ms ease-out;
     animation-fill-mode: forwards;
     will-change: transform;

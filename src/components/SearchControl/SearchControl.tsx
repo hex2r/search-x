@@ -14,6 +14,7 @@ import useSearchControl from "./hooks/useSearchControl"
 import useQueryAutocompletions from "./hooks/useQueryAutocompletions"
 import useAutocomplete from "./hooks/useAutocomplete"
 import useEffectOutsideClick from "../../hooks/useOutsideClick"
+import { basicToSearchAutocompletion } from "./helpers/convertToAutocompletion"
 
 export type SearchControl = {
   id: string
@@ -43,18 +44,26 @@ const SearchControl: FC<SearchControl> = ({
     search,
     contextQuery: query,
   })
-  const { fetchedAutocompletions, error: fetchError } =
-    useQueryAutocompletions(input)
+  const {
+    fetchedAutocompletions,
+    error: fetchError,
+    isPending,
+  } = useQueryAutocompletions(input)
   const { autocompletions } = useAutocomplete({
     input,
     contextQuery: query,
-    fetchedAutocompletions: fetchError ? [] : fetchedAutocompletions || [],
+    fetchedSearchAutocompletions:
+      fetchError || isPending
+        ? []
+        : fetchedAutocompletions.map((item) =>
+            basicToSearchAutocompletion(item)
+          ),
   })
 
-  const deferredAutocompletions = useDeferredValue(autocompletions)
+  // const deferredAutocompletions = useDeferredValue(autocompletions)
 
   const handleDropdown = () => {
-    if (deferredAutocompletions.length) {
+    if (autocompletions.length) {
       setDropdownVisible(true)
       return
     }
@@ -63,10 +72,10 @@ const SearchControl: FC<SearchControl> = ({
 
   useEffectOutsideClick(searchControlRef, () => setDropdownVisible(false))
   useEffect(() => {
-    if (!deferredAutocompletions.length) {
+    if (!autocompletions.length) {
       setDropdownVisible(false)
     }
-  }, [deferredAutocompletions, setDropdownVisible])
+  }, [autocompletions, setDropdownVisible])
 
   return (
     <Styled.SearchControl
@@ -109,7 +118,7 @@ const SearchControl: FC<SearchControl> = ({
       {isDropdownVisible && (
         <SearchDropdown
           scale={scale}
-          items={deferredAutocompletions}
+          items={autocompletions}
           onSelectAutocompletion={onSelectAutocompletion}
         />
       )}

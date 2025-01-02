@@ -34,7 +34,9 @@ export const KEYS = {
   ESC: "Escape",
 } as const
 
-export const MAX_DISPLAYED_AUTOCOMPLETIONS = 10
+export const TOTAL_DISPLAYED_AUTOCOMPLETIONS = 10
+
+export const MAX_DISPLAYED_HISTORY_AUTOCOMPLETIONS = 4
 
 export const ITEMS_PER_PAGE = 1
 

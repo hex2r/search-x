@@ -16,6 +16,7 @@ export default function useQueryAutocompletions(input: string) {
       fetchAutocompletions({
         url: buildAutocompletionsURL(debouncedInput),
       }),
+    initialData: [],
     enabled: !!debouncedInput,
   })
 
